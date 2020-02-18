@@ -49,10 +49,10 @@
                   </div>
                 </a-menu-item>
                 <a-menu-item key="logout">
-                  <div>
+                  <!-- <div>
                     <a-icon type="github" />
                     <span style="margin-left:8px">Github登录</span>
-                  </div>
+                  </div> -->
                   <div>
                     <a-icon type="logout" />
                     <span style="margin-left:8px">退出登录</span>
