@@ -21,7 +21,7 @@
               src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
             />-->
             <a-list-item-meta>
-              <a slot="title" :href="item.href">{{item.title}}</a>
+              <router-link slot="title" to="/question">{{item.title}}</router-link>
               <a-avatar slot="avatar" :src="item.avatar" />
             </a-list-item-meta>
             {{item.content}}
@@ -55,7 +55,7 @@ let moment = require("moment");
 const listData = [];
 for (let i = 0; i < 23; i++) {
   listData.push({
-    href: "https://www.antdv.com/",
+    href: "/",
     title: `ant design vue part ${i}`,
     avatar: "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
     description:

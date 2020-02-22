@@ -55,6 +55,7 @@ export default {
       name: "01-example",
       content: ``,
       editorOption: {
+        placeholder: "在这里编辑问题描述",
         modules: {
           toolbar: [
             ["bold", "italic", "underline", "strike"],

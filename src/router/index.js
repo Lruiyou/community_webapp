@@ -9,7 +9,7 @@ const routes = [
     path: '/',
     name: 'Home',
     meta: {
-      title: '首页'
+      title: '首页 - Coder论坛'
     },
     component: Home
   },
@@ -17,12 +17,20 @@ const routes = [
     path: '/publish',
     name: 'Publish',
     meta: {
-      title: '发布问题'
+      title: '发布问题 - Coder论坛'
     },
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import('../views/Publish.vue')
+  },
+  {
+    path: '/question',
+    name: 'Question',
+    meta: {
+      title: '问题详情 - Coder论坛'
+    },
+    component: () => import('../views/Question.vue')
   }
 ]
 
