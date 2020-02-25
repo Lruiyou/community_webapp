@@ -1,11 +1,11 @@
 <template>
   <div class="home">
+    <Nav />
     <a-row class="common-main" type="flex" justify="center">
       <a-col :xs="24" :sm="24" :md="14" :lg="14" :xl="14">
         <a-card>
           <div slot="title">
             <div>
-              <a-icon type="read" style="margin-right:5px;font-size:17px" />
               <span style="font-size:17px">问题的标题</span>
             </div>
             <div class="edit">
@@ -15,10 +15,9 @@
           <div style="min-height:200px">内容</div>
           <div class="tag-div">
             <div class="tags">
-              <a-tag color="pink">pink</a-tag>
-              <a-tag color="red">red</a-tag>
-              <a-tag color="orange">orange</a-tag>
-              <a-tag color="green">green</a-tag>
+              <a-tag>pink</a-tag>
+              <a-tag>red</a-tag>
+              <a-tag>orange</a-tag>
             </div>
             <div class="icon-div">
               <span class="space">
@@ -95,12 +94,20 @@
                     <a-button htmlType="submit" @click="showTextarea(index,item.id)">取消</a-button>
                   </a-form-item>
                 </div>
+                <div class="pagination-div">
+                  <el-pagination
+                    small
+                    layout="prev, pager, next"
+                    :total="50"
+                    v-if="item.subComments !== null && item.subComments.length > 0"
+                  ></el-pagination>
+                </div>
               </a-comment>
             </div>
 
             <!-- 分页 -->
             <div class="pagination-div">
-              <a-pagination :defaultCurrent="2" :total="20" />
+              <el-pagination small background layout="prev, pager, next" :total="1000"></el-pagination>
             </div>
 
             <!-- 问题的回复框 -->
@@ -144,6 +151,7 @@
 <script>
 import User from "@/components/User.vue";
 import Relation from "@/components/Relation.vue";
+import Nav from "@/components/Nav.vue";
 
 export default {
   name: "Question",
@@ -205,9 +213,11 @@ export default {
       }
     }
   },
+  created() {},
   components: {
     User,
-    Relation
+    Relation,
+    Nav
   }
 };
 </script>

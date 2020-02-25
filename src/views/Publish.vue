@@ -14,9 +14,15 @@
           <a-input placeholder="在这里输入问题标题" style="width:100%" allowClear></a-input>
         </a-col>
         <a-col :span="24" style="margin-top:20px">
-          <quill-editor ref="myTextEditor" v-model="content" :options="editorOption"></quill-editor>
+          <el-upload></el-upload>
+          <quill-editor
+            ref="myTextEditor"
+            v-model="content"
+            :options="editorOption"
+            @change="onEditorChange($event)"
+          ></quill-editor>
         </a-col>
-        <a-col :span="24" style="margin-top:20px">
+        <a-col :span="24" style="margin-top:30px">
           <a-tree-select
             showSearch
             style="width: 100%"
@@ -47,6 +53,7 @@ import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 import "quill/dist/quill.bubble.css";
 import { quillEditor } from "vue-quill-editor";
+import { toolbarOptions } from "../global/toolbarConfig";
 
 export default {
   data() {
@@ -57,22 +64,18 @@ export default {
       editorOption: {
         placeholder: "在这里编辑问题描述",
         modules: {
-          toolbar: [
-            ["bold", "italic", "underline", "strike"],
-            ["blockquote", "code-block"],
-            [{ header: 1 }, { header: 2 }],
-            [{ list: "ordered" }, { list: "bullet" }],
-            [{ script: "sub" }, { script: "super" }],
-            [{ indent: "-1" }, { indent: "+1" }],
-            [{ direction: "rtl" }],
-            [{ size: ["small", false, "large", "huge"] }],
-            [{ header: [1, 2, 3, 4, 5, 6, false] }],
-            [{ font: [] }],
-            [{ color: [] }, { background: [] }],
-            [{ align: [] }],
-            ["clean"],
-            ["link", "image"]
-          ]
+          toolbar: {
+            container: toolbarOptions,
+            handlers: {
+              image: function(value) {
+                if (value) {
+                  alert(1);
+                } else {
+                  this.quill.format("image", false);
+                }
+              }
+            }
+          }
         }
       }
     };
@@ -87,6 +90,10 @@ export default {
     },
     onSelect() {
       console.log(...arguments);
+    },
+    onEditorChange(event) {
+      const content = event.html;
+      console.log(content, "content");
     }
   },
   components: {

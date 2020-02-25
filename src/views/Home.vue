@@ -1,5 +1,6 @@
 <template>
   <div class="home">
+    <Nav />
     <a-row class="common-main" type="flex" justify="center">
       <a-col class="common-left" :xs="24" :sm="24" :md="14" :lg="14" :xl="14">
         <a-list itemLayout="vertical" size="large" :pagination="pagination" :dataSource="listData">
@@ -49,6 +50,7 @@
 </template>
 
 <script>
+import Nav from "@/components/Nav.vue";
 // @ is an alias to /src
 
 let moment = require("moment");
@@ -66,7 +68,9 @@ for (let i = 0; i < 23; i++) {
 }
 export default {
   name: "Home",
-  components: {},
+  components: {
+    Nav
+  },
   data() {
     return {
       listData,
@@ -86,7 +90,8 @@ export default {
         }
       ]
     };
-  }
+  },
+  created() {}
 };
 </script>
 

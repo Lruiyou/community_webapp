@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
+// import { isExitCookie } from '../utils/cookieUtils';
 
 Vue.use(VueRouter)
 
@@ -45,6 +46,15 @@ router.beforeEach((to, from, next) => {
     document.title = to.meta.title
   }
   next()
+  // if (to.path === '/') {
+  //   next()
+  // } else {
+  //   if (isExitCookie('token')) {
+  //     next()
+  //   } else {
+  //     next("/")
+  //   }
+  // }
 })
 
 export default router
