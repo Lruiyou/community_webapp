@@ -4,6 +4,7 @@ import router from './router'
 import './assets/css/common.css'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
+import { timeFormat } from './utils/filter';
 import { Button, List, Icon, Menu, Row, Col, Input, Badge, Avatar, Card, Affix, TreeSelect, Divider, Tag, Comment, Form, Pagination, Spin, message, Popconfirm } from 'ant-design-vue'
 
 Vue.use(ElementUI)
@@ -28,6 +29,9 @@ Vue.use(Pagination)
 Vue.use(Spin)
 Vue.use(message)
 Vue.use(Popconfirm)
+
+//时间过滤器
+Vue.filter('timeFormat', timeFormat)
 
 Vue.config.productionTip = false
 

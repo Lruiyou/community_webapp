@@ -8,7 +8,7 @@
             <template slot="actions" v-for="{type, text} in actions">
               <span v-if="type==='发布时间'" :key="type">
                 <span style="margin-right: 8px">{{type}}</span>
-                <span>{{text}}</span>
+                <span>{{text | timeFormat}}</span>
               </span>
               <span :key="type" v-else>
                 <a-icon :type="type" style="margin-right: 8px" />
@@ -53,7 +53,7 @@
 import Nav from "@/components/Nav.vue";
 // @ is an alias to /src
 
-let moment = require("moment");
+// let moment = require("moment");
 const listData = [];
 for (let i = 0; i < 23; i++) {
   listData.push({
@@ -88,7 +88,7 @@ export default {
         { type: "eye", text: "7" },
         {
           type: "发布时间",
-          text: moment(new Date().getTime()).format("YYYY-MM-DD HH:mm")
+          text: "1582702893"
         }
       ]
     };

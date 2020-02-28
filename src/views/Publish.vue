@@ -154,6 +154,7 @@ export default {
         this.published = true;
         const params = {
           creator: user.accountId,
+          github_url: user.githubUrl,
           title: this.title,
           content: this.content,
           html_content: this.html_content,
