@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <Nav />
+    <Nav :path="path" />
     <a-row class="common-main" type="flex" justify="center">
       <a-col class="common-left" :xs="24" :sm="24" :md="14" :lg="14" :xl="14">
         <a-list itemLayout="vertical" size="large" :pagination="pagination" :dataSource="listData">
@@ -22,7 +22,7 @@
               src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
             />-->
             <a-list-item-meta>
-              <router-link slot="title" to="/question">{{item.title}}</router-link>
+              <router-link slot="title" :to="'/question/'+item.id">{{item.title}}</router-link>
               <a-avatar slot="avatar" :src="item.avatar" />
             </a-list-item-meta>
             {{item.content}}
@@ -57,6 +57,7 @@ let moment = require("moment");
 const listData = [];
 for (let i = 0; i < 23; i++) {
   listData.push({
+    id: i,
     href: "/",
     title: `ant design vue part ${i}`,
     avatar: "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
@@ -73,6 +74,7 @@ export default {
   },
   data() {
     return {
+      path: null,
       listData,
       pagination: {
         onChange: page => {
@@ -91,7 +93,9 @@ export default {
       ]
     };
   },
-  created() {}
+  created() {
+    this.path = this.$route.path;
+  }
 };
 </script>
 

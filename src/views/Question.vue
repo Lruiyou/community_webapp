@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <Nav />
+    <Nav :path="path" />
     <a-row class="common-main" type="flex" justify="center">
       <a-col :xs="24" :sm="24" :md="14" :lg="14" :xl="14">
         <a-card>
@@ -157,6 +157,7 @@ export default {
   name: "Question",
   data() {
     return {
+      path: null,
       comments: [
         {
           id: 1,
@@ -213,7 +214,9 @@ export default {
       }
     }
   },
-  created() {},
+  created() {
+    this.path = this.$route.path;
+  },
   components: {
     User,
     Relation,

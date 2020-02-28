@@ -30,9 +30,14 @@
                   <a-icon type="login" />登录
                 </span>
                 <span slot="title" v-if="userInfo !== null">
-                  <!-- <a-avatar src="" style="margin-bottom:0.7rem" /> -->
+                  <!-- <a-avatar :src="userInfo.avatarUrl" shape="square" style="margin-bottom:0.7rem" /> -->
                   <!-- <el-avatar :src="userInfo.avatarUrl" size="small"></el-avatar> -->
-                  <img :src="userInfo.avatarUrl" height="25px" width="25px" />
+                  <img
+                    :src="userInfo.avatarUrl"
+                    height="26px"
+                    width="26px"
+                    style="margin-bottom:0.6rem"
+                  />
                 </span>
                 <a-menu-item key="login" v-if="userInfo == null">
                   <div @click="handleOAuth">
@@ -42,7 +47,7 @@
                 </a-menu-item>
                 <a-menu-item key="my-publish" v-if="userInfo !== null">
                   <div>
-                    <router-link to="/publish">
+                    <router-link :to="{path:'/publish',query:{type:'create'}}">
                       <a-icon type="form" />
                       <span style="margin-left:8px">发布问题</span>
                     </router-link>
@@ -76,6 +81,11 @@ import randomCode from "../utils/randomCode";
 import { getUser } from "../api/user";
 import userStore from "../global/userStore";
 export default {
+  props: {
+    path: {
+      type: String
+    }
+  },
   data() {
     return {
       userInfo: null
@@ -84,13 +94,16 @@ export default {
   methods: {
     handleOAuth() {
       const state = randomCode(16);
-      this.preventHref = window.location.href;
-      window.location.href = OAuth_URL + `&state=${state}`;
+      window.location.href = OAuth_URL + `&state=${state}+${this.path}`;
     },
     handleLogout() {
       removeCookie("token");
       userStore.removeUserInfo();
       this.userInfo = null;
+      const url = window.location.href;
+      if (url.indexOf("publish") != -1) {
+        this.$router.push("/");
+      }
     }
   },
   created() {

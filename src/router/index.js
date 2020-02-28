@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
-// import { isExitCookie } from '../utils/cookieUtils';
+import { isExitCookie } from '../utils/cookieUtils';
 
 Vue.use(VueRouter)
 
@@ -26,7 +26,7 @@ const routes = [
     component: () => import('../views/Publish.vue')
   },
   {
-    path: '/question',
+    path: '/question/:id',
     name: 'Question',
     meta: {
       title: '问题详情 - Coder论坛'
@@ -45,16 +45,18 @@ router.beforeEach((to, from, next) => {
   if (to.meta.title) {
     document.title = to.meta.title
   }
-  next()
-  // if (to.path === '/') {
-  //   next()
-  // } else {
-  //   if (isExitCookie('token')) {
-  //     next()
-  //   } else {
-  //     next("/")
-  //   }
-  // }
+
+
+  if (to.path === '/' || to.name === 'Question') {
+    next()
+  } else {
+    if (isExitCookie('token')) {
+      next()
+    } else {
+      next("/")
+      alert("请先登录")
+    }
+  }
 })
 
 export default router
