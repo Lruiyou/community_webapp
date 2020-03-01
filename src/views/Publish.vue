@@ -8,13 +8,7 @@
       </div>
       <div slot="extra">
         <a-button type="primary" style="margin-right:8px" @click="handleOK" :loading="published">确定</a-button>
-        <a-popconfirm
-          title="取消后所填内容将不保存"
-          @confirm="confirm"
-          @cancel="cancel"
-          okText="是"
-          cancelText="否"
-        >
+        <a-popconfirm title="确认取消发布吗" @confirm="confirm" @cancel="cancel" okText="是" cancelText="否">
           <a-icon slot="icon" type="question-circle-o" style="color: red" />
           <a-button>取消</a-button>
         </a-popconfirm>
@@ -76,7 +70,6 @@ import Nav from "@/components/Nav.vue";
 import { toolbarOptions } from "../global/toolbarConfig";
 import { tags } from "../global/tags";
 import { publishQuestion } from "../api/question";
-import userInfo from "../global/userStore";
 
 let validTags = [];
 
@@ -134,21 +127,33 @@ export default {
     },
     handleOK() {
       if (this.title == null) {
-        this.$message.error("问题标题不能为空");
+        this.$message({
+          showClose: true,
+          message: "问题标题不能为空",
+          type: "error"
+        });
         return;
       }
 
       if (this.content == null) {
-        this.$message.error("问题描述不能为空");
+        this.$message({
+          showClose: true,
+          message: "问题描述不能为空",
+          type: "error"
+        });
         return;
       }
 
       if (this.tag.length == 0) {
-        this.$message.error("请选择标签，标签不能为空");
+        this.$message({
+          showClose: true,
+          message: "请选择标签，标签不能为空",
+          type: "error"
+        });
         return;
       }
 
-      const user = userInfo.getUserInfo();
+      const user = this.$store.state.userInfo;
 
       if (user != null) {
         this.published = true;
@@ -161,7 +166,7 @@ export default {
           tag: JSON.stringify(this.tag)
         };
         publishQuestion(params).then(res => {
-          if (res.data.code === 200) {
+          if (res && res.data.code === 200) {
             this.published = false;
             this.$message({
               showClose: true,
@@ -176,6 +181,7 @@ export default {
               message: "出错啦",
               type: "error"
             });
+            return;
           }
         });
       } else {
@@ -186,12 +192,14 @@ export default {
         });
       }
     },
-    confirm() {},
-    cancel() {}
+    confirm() {
+      this.$router.push("/");
+    },
+    cancel() {
+      this.$router.push("/");
+    }
   },
-  created() {
-    console.log(1);
-  },
+  created() {},
   mounted() {
     this.$refs.myQuillEditor.quill.enable(true);
   }

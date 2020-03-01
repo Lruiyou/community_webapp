@@ -31,12 +31,11 @@
                 </span>
                 <span slot="title" v-if="userInfo !== null">
                   <!-- <a-avatar :src="userInfo.avatarUrl" shape="square" style="margin-bottom:0.7rem" /> -->
-                  <!-- <el-avatar :src="userInfo.avatarUrl" size="small"></el-avatar> -->
                   <img
                     :src="userInfo.avatarUrl"
-                    height="26px"
-                    width="26px"
-                    style="margin-bottom:0.6rem"
+                    height="28px"
+                    width="28px"
+                    style="margin-bottom:0.7rem;border-radius:2px"
                   />
                 </span>
                 <a-menu-item key="login" v-if="userInfo == null">
@@ -75,11 +74,11 @@
 </template>
 
 <script>
-import { isExitCookie, getCookie, removeCookie } from "../utils/cookieUtils";
+import { isExitCookie, removeCookie, getCookie } from "../utils/cookieUtils";
 import { OAuth_URL } from "../global/githubConfig";
 import randomCode from "../utils/randomCode";
 import { getUser } from "../api/user";
-import userStore from "../global/userStore";
+// import userStore from "../global/userStore";
 export default {
   props: {
     path: {
@@ -98,8 +97,8 @@ export default {
     },
     handleLogout() {
       removeCookie("token");
-      userStore.removeUserInfo();
       this.userInfo = null;
+      this.$store.commit("removeUser");
       const url = window.location.href;
       if (url.indexOf("publish") != -1) {
         this.$router.push("/");
@@ -109,22 +108,47 @@ export default {
   created() {
     if (!isExitCookie("token")) {
       this.userInfo = null;
-      userStore.removeUserInfo();
     } else {
-      const user = userStore.getUserInfo();
-      if (user == null) {
-        const cookie = getCookie("token");
-        getUser({ token: cookie }).then(res => {
-          if (res.data.code === 200) {
-            this.userInfo = res.data.data;
-            userStore.saveUserInfo(this.userInfo);
-          }
-        });
-      } else {
-        this.userInfo = user;
-      }
+      const cookie = getCookie("token");
+      getUser({ token: cookie }).then(res => {
+        if (res.data.code === 200) {
+          this.userInfo = res.data.data;
+          this.$store.commit({
+            type: "updateUser",
+            userInfo: res.data.data
+          });
+        }
+      });
     }
   }
+  //   handleLogout() {
+  //     removeCookie("token");
+  //     userStore.removeUserInfo();
+  //     this.userInfo = null;
+  //     const url = window.location.href;
+  //     if (url.indexOf("publish") != -1) {
+  //       this.$router.push("/");
+  //     }
+  //   }
+  // },
+  // created() {
+  //   if (!isExitCookie("token")) {
+  //     this.userInfo = null;
+  //     userStore.removeUserInfo();
+  //   } else {
+  //     const user = userStore.getUserInfo();
+  //     if (user == null) {
+  //       const cookie = getCookie("token");
+  //       getUser({ token: cookie }).then(res => {
+  //         if (res.data.code === 200) {
+  //           this.userInfo = res.data.data;
+  //           userStore.saveUserInfo(this.userInfo);
+  //         }
+  //       });
+  //     } else {
+  //       this.userInfo = user;
+  //     }
+  //   }
 };
 </script>
 

@@ -4,11 +4,10 @@
     <a-row class="common-main" type="flex" justify="center">
       <a-col class="common-left" :xs="24" :sm="24" :md="14" :lg="14" :xl="14">
         <a-list itemLayout="vertical" size="large" :pagination="pagination" :dataSource="listData">
-          <a-list-item slot="renderItem" slot-scope="item" key="item.title">
+          <a-list-item slot="renderItem" slot-scope="item" key="item.title" style="margin-left:8px">
             <template slot="actions" v-for="{type, text} in actions">
               <span v-if="type==='发布时间'" :key="type">
-                <span style="margin-right: 8px">{{type}}</span>
-                <span>{{text | timeFormat}}</span>
+                <span style="margin-right: 8px">{{text | timeFormat}}</span>
               </span>
               <span :key="type" v-else>
                 <a-icon :type="type" style="margin-right: 8px" />
@@ -23,7 +22,14 @@
             />-->
             <a-list-item-meta>
               <router-link slot="title" :to="'/question/'+item.id">{{item.title}}</router-link>
-              <a-avatar slot="avatar" :src="item.avatar" />
+              <!-- <a-avatar slot="avatar" shape="square" :src="item.avatar" /> -->
+              <img
+                slot="avatar"
+                :src="item.avatar"
+                height="30px"
+                width="30px"
+                style="border-radius:2px"
+              />
             </a-list-item-meta>
             {{item.content}}
           </a-list-item>
@@ -55,7 +61,7 @@ import Nav from "@/components/Nav.vue";
 
 // let moment = require("moment");
 const listData = [];
-for (let i = 0; i < 23; i++) {
+for (let i = 0; i < 20; i++) {
   listData.push({
     id: i,
     href: "/",
@@ -88,7 +94,7 @@ export default {
         { type: "eye", text: "7" },
         {
           type: "发布时间",
-          text: "1582702893"
+          text: "1582882904"
         }
       ]
     };
