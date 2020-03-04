@@ -16,7 +16,16 @@
       <a-row type="flex">
         <a-col :span="24">
           <el-input v-model="title" placeholder="请输入问题标题" maxlength="20" show-word-limit clearable></el-input>
-          <el-upload></el-upload>
+          <el-upload
+            class="uploader"
+            accept="image/jpeg, image/png"
+            :multiple="false"
+            action="http://localhost:8008/file/upload"
+            :show-file-list="false"
+            :on-success="uploadSuccess"
+            :on-error="uploadError"
+            :before-upload="beforeUpload"
+          ></el-upload>
         </a-col>
         <a-col :span="24" style="margin-top:20px">
           <quill-editor
@@ -70,14 +79,7 @@ import Nav from "@/components/Nav.vue";
 import { toolbarOptions } from "../global/toolbarConfig";
 import { tags } from "../global/tags";
 import { publishQuestion } from "../api/question";
-
-let validTags = [];
-
-tags.forEach(v1 => {
-  v1.subNode.forEach(v2 => {
-    validTags.push(v2.value);
-  });
-});
+import findImgSrc from "../utils/findImgSrc";
 
 export default {
   components: {
@@ -93,6 +95,7 @@ export default {
       content: null,
       html_content: null,
       tag: [],
+      fileUrls: [],
       tags: tags,
       editorOption: {
         placeholder: "在这里编辑问题描述",
@@ -103,7 +106,7 @@ export default {
             handlers: {
               image: function(value) {
                 if (value) {
-                  alert(1);
+                  document.querySelector(".uploader input").click();
                 } else {
                   this.quill.format("image", false);
                 }
@@ -115,8 +118,51 @@ export default {
     };
   },
   methods: {
+    beforeUpload(file) {
+      const isJPG = file.type === "image/jpeg";
+      const isPNG = file.type === "image/png";
+      const isLt2M = file.size / 1024 / 1024 < 2;
+
+      if (this.fileUrls.length >= 3) {
+        this.$message.error("上传的图片不能超过3张");
+        return false;
+      }
+
+      if (!isJPG && !isPNG) {
+        this.$message.error("上传的图片要 JPG 或 PNG 格式!");
+        return false;
+      }
+      if (!isLt2M) {
+        this.$message.error("上传的图片大小不能超过 2MB!");
+        return false;
+      }
+    },
+    uploadSuccess(res) {
+      // res为图片服务器返回的数据
+      // 获取富文本组件实例
+      let quill = this.$refs.myQuillEditor.quill;
+      //如果上传成功;
+      if (res.code === 200 && res.data !== null) {
+        // 获取光标所在位置
+        let length = quill.getSelection().index;
+        // 插入图片  res.info为服务器返回的图片地址
+        quill.insertEmbed(length, "image", res.data.url);
+        // 调整光标到最后
+        quill.setSelection(length + 1);
+      } else {
+        this.$message.error("图片插入失败");
+      }
+    },
+    uploadError() {
+      this.$message.error("图片插入失败");
+    },
     onEditorChange(event) {
       this.content = event.text;
+      if (event.html.indexOf("img" != -1)) {
+        let srcArr = findImgSrc(event.html);
+        this.fileUrls = srcArr;
+      }
+      console.log(this.fileUrls, "fileUrls");
     },
     onTagChange(value) {
       if (value.length >= 5) {
@@ -135,7 +181,7 @@ export default {
         return;
       }
 
-      if (this.content == null) {
+      if (this.html_content == null) {
         this.$message({
           showClose: true,
           message: "问题描述不能为空",
@@ -163,7 +209,8 @@ export default {
           title: this.title,
           content: this.content,
           html_content: this.html_content,
-          tag: JSON.stringify(this.tag)
+          tag: JSON.stringify(this.tag),
+          file_url: JSON.stringify(this.fileUrls)
         };
         publishQuestion(params).then(res => {
           if (res && res.data.code === 200) {
@@ -195,13 +242,7 @@ export default {
     confirm() {
       this.$router.push("/");
     },
-    cancel() {
-      this.$router.push("/");
-    }
-  },
-  created() {},
-  mounted() {
-    this.$refs.myQuillEditor.quill.enable(true);
+    cancel() {}
   }
 };
 </script>
