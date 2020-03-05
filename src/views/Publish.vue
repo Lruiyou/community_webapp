@@ -162,7 +162,6 @@ export default {
         let srcArr = findImgSrc(event.html);
         this.fileUrls = srcArr;
       }
-      console.log(this.fileUrls, "fileUrls");
     },
     onTagChange(value) {
       if (value.length >= 5) {
@@ -205,6 +204,7 @@ export default {
         this.published = true;
         const params = {
           creator: user.accountId,
+          avatar: user.avatar_url,
           github_url: user.githubUrl,
           title: this.title,
           content: this.content,

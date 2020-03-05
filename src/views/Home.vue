@@ -3,22 +3,37 @@
     <Nav :path="path" />
     <a-row class="common-main" type="flex" justify="center">
       <a-col class="common-left" :xs="24" :sm="24" :md="14" :lg="14" :xl="14">
-        <a-list itemLayout="vertical" size="large" :pagination="pagination" :dataSource="listData">
-          <a-list-item slot="renderItem" slot-scope="item" key="item.title" style="margin-left:8px">
-            <template slot="actions" v-for="{type, text} in actions">
-              <span v-if="type==='发布时间'" :key="type">
-                <span style="margin-right: 8px">{{text | timeFormat}}</span>
+        <a-list
+          itemLayout="vertical"
+          size="large"
+          :pagination="pagination"
+          :dataSource="questionList"
+        >
+          <a-list-item slot="renderItem" slot-scope="item" key="item.id" style="margin-left:8px">
+            <template slot="actions">
+              <span key="like-o">
+                <a-icon type="like-o" style="margin-right: 8px" />
+                {{item.likeCount}}
               </span>
-              <span :key="type" v-else>
-                <a-icon :type="type" style="margin-right: 8px" />
-                {{text}}
+              <span key="message">
+                <a-icon type="message" style="margin-right: 8px" />
+                {{item.commentCount}}
+              </span>
+              <span key="eye">
+                <a-icon type="eye" style="margin-right: 8px" />
+                {{item.viewCount}}
+              </span>
+              <span key="time">
+                <span style="margin-right: 8px">{{item.createTime | timeFormat}}</span>
               </span>
             </template>
             <!-- <img
+              v-if="item.fileUrl != null"
               slot="extra"
-              width="272"
-              alt="logo"
-              src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
+              width="250"
+              height="100"
+              alt="image"
+              :src="item.fileUrl[0]"
             />-->
             <a-list-item-meta>
               <router-link slot="title" :to="'/question/'+item.id">{{item.title}}</router-link>
@@ -57,22 +72,10 @@
 
 <script>
 import Nav from "@/components/Nav.vue";
+import { getQuestionList } from "../api/question";
 // @ is an alias to /src
 
 // let moment = require("moment");
-const listData = [];
-for (let i = 0; i < 20; i++) {
-  listData.push({
-    id: i,
-    href: "/",
-    title: `ant design vue part ${i}`,
-    avatar: "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
-    description:
-      "Ant Design, a design language for background applications, is refined by Ant UED Team.",
-    content:
-      "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently."
-  });
-}
 export default {
   name: "Home",
   components: {
@@ -81,26 +84,32 @@ export default {
   data() {
     return {
       path: null,
-      listData,
+      questionList: [],
       pagination: {
         onChange: page => {
           console.log(page);
-        },
-        pageSize: 5
-      },
-      actions: [
-        { type: "like-o", text: "156" },
-        { type: "message", text: "2" },
-        { type: "eye", text: "7" },
-        {
-          type: "发布时间",
-          text: "1582882904"
         }
-      ]
+      }
     };
   },
   created() {
     this.path = this.$route.path;
+    getQuestionList({ currentPage: 1, pageSize: 5 }).then(res => {
+      if (res && res.data.code === 200) {
+        const { questions, page } = res.data.data;
+        this.pagination = { ...this.pagination, ...page };
+        if (questions.length >= 1) {
+          questions.forEach(element => {
+            let { tag, fileUrl, ...otherData } = element;
+            this.questionList.push({
+              ...otherData,
+              tag: JSON.parse(tag),
+              fileUrl: JSON.parse(fileUrl)
+            });
+          });
+        }
+      }
+    });
   }
 };
 </script>

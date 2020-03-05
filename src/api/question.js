@@ -16,3 +16,11 @@ export function publishQuestion(params) {
     })
 }
 
+export function getQuestionList(params) {
+    return request({
+        url: '/question',
+        method: 'get',
+        params
+    })
+}
+

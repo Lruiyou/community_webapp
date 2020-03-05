@@ -32,6 +32,14 @@ const routes = [
       title: '问题详情 - Coder论坛'
     },
     component: () => import('../views/Question.vue')
+  },
+  {
+    path: '/search',
+    name: 'Search',
+    meta: {
+      title: '搜索 - Coder论坛'
+    },
+    component: () => import('../views/Search.vue')
   }
 ]
 
@@ -47,7 +55,7 @@ router.beforeEach((to, from, next) => {
   }
 
 
-  if (to.path === '/' || to.name === 'Question') {
+  if (to.path === '/' || to.name === 'Question' || to.name === 'Search') {
     next()
   } else {
     if (isExitCookie('token')) {
