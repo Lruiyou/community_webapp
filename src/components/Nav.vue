@@ -7,7 +7,13 @@
             <span class="header-logo">Coder论坛</span>
           </a-col>
           <a-col :xs="0" :sm="0" :md="10" :lg="8" :xl="8">
-            <a-input-search style="width:300px" placeholder="在这里搜索话题" />
+            <a-input-search
+              style="width:300px"
+              placeholder="在这里搜索话题"
+              @search="onSearch"
+              @change="onChange"
+              :defaultValue="inputValue"
+            />
           </a-col>
           <a-col :xs="14" :sm="14" :md="6" :lg="6" :xl="6">
             <a-menu mode="horizontal">
@@ -87,7 +93,8 @@ export default {
   },
   data() {
     return {
-      userInfo: null
+      userInfo: null,
+      inputValue: null
     };
   },
   methods: {
@@ -103,9 +110,33 @@ export default {
       if (url.indexOf("publish") != -1) {
         this.$router.push("/");
       }
+    },
+    onSearch(value) {
+      let filterValue = null;
+      if (!value) {
+        return;
+      }
+      if (value.indexOf("\\") != -1) {
+        filterValue = value.replace(/\\/g, "");
+      } else {
+        filterValue = value;
+      }
+      if (this.$route.name === "Search") {
+        //子组件传值给父组件
+        this.$emit("navevent", filterValue);
+      }
+      sessionStorage.setItem("keyword", filterValue);
+      this.$router.push({ name: "Search", query: { keyword: filterValue } });
+    },
+    onChange(e) {
+      sessionStorage.setItem("keyword", e.target.value);
     }
   },
   created() {
+    const keyword = sessionStorage.getItem("keyword");
+    if (keyword) {
+      this.inputValue = keyword;
+    }
     if (!isExitCookie("token")) {
       this.userInfo = null;
     } else {

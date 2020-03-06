@@ -1,13 +1,13 @@
 <template>
-  <div class="home">
+  <div>
     <Nav :path="path" />
     <a-row class="common-main" type="flex" justify="center">
       <a-col class="common-left" :xs="24" :sm="24" :md="14" :lg="14" :xl="14">
         <a-list
           itemLayout="vertical"
           size="large"
-          :pagination="pagination"
           :dataSource="questionList"
+          :pagination="pagination"
         >
           <a-list-item slot="renderItem" slot-scope="item" key="item.id" style="margin-left:8px">
             <template slot="actions">
@@ -27,17 +27,8 @@
                 <span style="margin-right: 8px">{{item.createTime | timeFormat}}</span>
               </span>
             </template>
-            <!-- <img
-              v-if="item.fileUrl != null"
-              slot="extra"
-              width="250"
-              height="100"
-              alt="image"
-              :src="item.fileUrl[0]"
-            />-->
             <a-list-item-meta>
               <router-link slot="title" :to="'/question/'+item.id">{{item.title}}</router-link>
-              <!-- <a-avatar slot="avatar" shape="square" :src="item.avatar" /> -->
               <img
                 slot="avatar"
                 :src="item.avatar"
@@ -87,28 +78,38 @@ export default {
       questionList: [],
       pagination: {
         onChange: page => {
-          console.log(page);
+          this.getQuestions({
+            currentPage: page,
+            pageSize: 5
+          });
         }
       }
     };
   },
+  methods: {
+    getQuestions(payload) {
+      getQuestionList(payload).then(res => {
+        if (res && res.data.code === 200) {
+          const { questions, page } = res.data.data;
+          this.pagination = { ...this.pagination, ...page };
+          this.questionList = questions;
+          // questions.forEach(element => {
+          //   let { tag, fileUrl, ...otherData } = element;
+          //   this.questionList.push({
+          //     ...otherData,
+          //     tag: JSON.parse(tag),
+          //     fileUrl: JSON.parse(fileUrl)
+          //   });
+          // });
+        }
+      });
+    }
+  },
   created() {
     this.path = this.$route.path;
-    getQuestionList({ currentPage: 1, pageSize: 5 }).then(res => {
-      if (res && res.data.code === 200) {
-        const { questions, page } = res.data.data;
-        this.pagination = { ...this.pagination, ...page };
-        if (questions.length >= 1) {
-          questions.forEach(element => {
-            let { tag, fileUrl, ...otherData } = element;
-            this.questionList.push({
-              ...otherData,
-              tag: JSON.parse(tag),
-              fileUrl: JSON.parse(fileUrl)
-            });
-          });
-        }
-      }
+    this.getQuestions({
+      currentPage: 1,
+      pageSize: 5
     });
   }
 };
