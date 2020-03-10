@@ -6,31 +6,31 @@
         <a-card>
           <div slot="title">
             <div>
-              <span style="font-size:17px">问题的标题</span>
+              <span style="font-size:17px">{{questionInfo.title}}</span>
             </div>
             <div class="edit">
-              <span style="margin-right:5px">发布于</span>2020-1-30
+              <span style="margin-right:5px">发布于</span>
+              {{questionInfo.createTime}}
             </div>
           </div>
-          <div style="min-height:200px">内容</div>
+          <div v-html="questionInfo.htmlContent"></div>
           <div class="tag-div">
             <div class="tags">
-              <a-tag>pink</a-tag>
-              <a-tag>red</a-tag>
-              <a-tag>orange</a-tag>
+              <a-tag v-for="(item,index) in questionInfo.tag" :key="index">{{item}}</a-tag>
             </div>
             <div class="icon-div">
               <span class="space">
                 <a-icon type="like" style="margin-right:6px" />444
               </span>
               <span class="space">
-                <a-icon type="eye" style="margin-right:6px" />555
+                <a-icon type="eye" style="margin-right:6px" />
+                {{questionInfo.viewCount}}
               </span>
             </div>
           </div>
           <div>
             <div class="reply">
-              <h3>221条评论</h3>
+              <h3>{{questionInfo.commentCount}}条评论</h3>
             </div>
 
             <!-- 评论区 -->
@@ -138,7 +138,7 @@
       </a-col>
       <a-col :xs="0" :sm="0" :md="5" :lg="5" :xl="5">
         <div>
-          <User />
+          <User :userData="user" />
         </div>
         <div style="margin-top:20px">
           <Relation />
@@ -152,12 +152,16 @@
 import User from "@/components/User.vue";
 import Relation from "@/components/Relation.vue";
 import Nav from "@/components/Nav.vue";
+import { getQuestionDetails } from "@/api/question.js";
 
+let moment = require("moment");
 export default {
   name: "Question",
   data() {
     return {
       path: null,
+      questionInfo: null,
+      user: null,
       comments: [
         {
           id: 1,
@@ -204,18 +208,38 @@ export default {
       }
     },
     showSubTextarea(index, id) {
-      console.log(id);
-      console.log(this.$refs, "this.$refs");
+      console.log(id, "id");
       const displayAttr = this.$refs.showSubReply[index].style.display;
       if (displayAttr === "none") {
         this.$refs.showSubReply[index].style.display = "block";
       } else {
         this.$refs.showSubReply[index].style.display = "none";
       }
+    },
+    getQuestionDetails(payload) {
+      getQuestionDetails(payload).then(res => {
+        if (res && res.data.code === 200) {
+          let { tag, createTime, ...otherData } = res.data.data;
+          this.user = {
+            creatorName: otherData.creatorName,
+            avatar: otherData.avatar,
+            githubUrl: otherData.githubUrl
+          };
+          this.questionInfo = {
+            createTime: moment(createTime).format("YYYY-MM-DD HH:mm"),
+            tag: JSON.parse(tag),
+            ...otherData
+          };
+        }
+      });
     }
   },
   created() {
     this.path = this.$route.path;
+    const {
+      params: { id }
+    } = this.$route;
+    this.getQuestionDetails({ question_id: id });
   },
   components: {
     User,

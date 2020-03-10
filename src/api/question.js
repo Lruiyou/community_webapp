@@ -34,7 +34,7 @@ export function getHotTopic() { //获取热门话题
 
 export function getQuestionDetails(params) { //获取问题详情
     return request({
-        url: '',
+        url: '/question/details',
         method: 'get',
         params
     })
