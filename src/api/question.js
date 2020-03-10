@@ -16,9 +16,25 @@ export function publishQuestion(params) {
     })
 }
 
-export function getQuestionList(params) {
+export function getQuestionList(params) {//首页获取问题列表
     return request({
         url: '/question',
+        method: 'get',
+        params
+    })
+}
+
+
+export function getHotTopic() { //获取热门话题
+    return request({
+        url: '/question/hot',
+        method: 'get',
+    })
+}
+
+export function getQuestionDetails(params) { //获取问题详情
+    return request({
+        url: '',
         method: 'get',
         params
     })

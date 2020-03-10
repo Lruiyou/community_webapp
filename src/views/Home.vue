@@ -2,8 +2,9 @@
   <div>
     <Nav :path="path" />
     <a-row class="common-main" type="flex" justify="center">
-      <a-col class="common-left" :xs="24" :sm="24" :md="14" :lg="14" :xl="14">
+      <a-col :xs="24" :sm="24" :md="14" :lg="14" :xl="14">
         <a-list
+          class="common-left"
           itemLayout="vertical"
           size="large"
           :dataSource="questionList"
@@ -46,13 +47,20 @@
           <h3 class="hotTitle">
             <span>热门话题</span>
           </h3>
-          <div class="hotBox">
+          <div v-if="hotTopics.length === 0" class="no-data">
+            <span>暂无数据</span>
+          </div>
+          <div class="hotBox" v-for="item in hotTopics" :key="item.id">
             <div class="hotText">
-              <a class="hotLink" style="color:rgb(64, 64, 64)">特别别的特别的特别的</a>
+              <router-link
+                class="hotLink"
+                style="color:rgb(64, 64, 64)"
+                :to="'/question/'+item.id"
+              >{{item.title}}</router-link>
             </div>
             <div class="hot">
               <a-icon type="fire" style="margin-right:5px" />
-              <span style="margin-right:3px">2113</span>热度
+              <span style="margin-right:3px">{{item.heat}}</span>热度
             </div>
           </div>
         </div>
@@ -63,7 +71,7 @@
 
 <script>
 import Nav from "@/components/Nav.vue";
-import { getQuestionList } from "../api/question";
+import { getQuestionList, getHotTopic } from "../api/question";
 // @ is an alias to /src
 
 // let moment = require("moment");
@@ -76,6 +84,7 @@ export default {
     return {
       path: null,
       questionList: [],
+      hotTopics: [],
       pagination: {
         onChange: page => {
           this.getQuestions({
@@ -103,6 +112,13 @@ export default {
           // });
         }
       });
+    },
+    getHotTopic() {
+      getHotTopic().then(res => {
+        if (res && res.data.code === 200) {
+          this.hotTopics = res.data.data;
+        }
+      });
     }
   },
   created() {
@@ -111,6 +127,7 @@ export default {
       currentPage: 1,
       pageSize: 5
     });
+    this.getHotTopic();
   }
 };
 </script>
@@ -177,5 +194,12 @@ export default {
 .hot {
   font-size: 14px;
   color: #969696;
+}
+
+.no-data {
+  text-align: center;
+  height: 100px;
+  padding-top: 40px;
+  border: 1px solid rgb(230, 230, 230);
 }
 </style>

@@ -21,7 +21,7 @@
             </div>
             <div class="icon-div">
               <span class="space">
-                <a-icon type="like-o" style="margin-right:6px" />444
+                <a-icon type="like" style="margin-right:6px" />444
               </span>
               <span class="space">
                 <a-icon type="eye" style="margin-right:6px" />555
