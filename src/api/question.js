@@ -40,3 +40,20 @@ export function getQuestionDetails(params) { //获取问题详情
     })
 }
 
+
+export function getThumbupStatus(params) {//获取用户点赞状态
+    return request({
+        url: '/question/thumbup',
+        method: 'get',
+        params,
+    })
+}
+
+export function thumbUp(params) {//用户点赞操作
+    return request({
+        url: '/question/thumbup',
+        method: 'put',
+        params
+    })
+}
+

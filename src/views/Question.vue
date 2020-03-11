@@ -13,14 +13,20 @@
               {{questionInfo.createTime}}
             </div>
           </div>
-          <div v-html="questionInfo.htmlContent"></div>
+          <div style="word-break:break-word" v-html="questionInfo.htmlContent"></div>
           <div class="tag-div">
             <div class="tags">
               <a-tag v-for="(item,index) in questionInfo.tag" :key="index">{{item}}</a-tag>
             </div>
             <div class="icon-div">
               <span class="space">
-                <a-icon type="like" style="margin-right:6px" />444
+                <a-icon
+                  type="like"
+                  :theme="like === 1 ? 'filled' : 'outlined'"
+                  style="margin-right:6px"
+                  @click="handleThumbUp"
+                />
+                {{like_count}}
               </span>
               <span class="space">
                 <a-icon type="eye" style="margin-right:6px" />
@@ -152,7 +158,11 @@
 import User from "@/components/User.vue";
 import Relation from "@/components/Relation.vue";
 import Nav from "@/components/Nav.vue";
-import { getQuestionDetails } from "@/api/question.js";
+import {
+  getQuestionDetails,
+  getThumbupStatus,
+  thumbUp
+} from "@/api/question.js";
 
 let moment = require("moment");
 export default {
@@ -160,8 +170,10 @@ export default {
   data() {
     return {
       path: null,
-      questionInfo: null,
+      questionInfo: {},
       user: null,
+      like: 0,
+      like_count: 0,
       comments: [
         {
           id: 1,
@@ -217,9 +229,14 @@ export default {
       }
     },
     getQuestionDetails(payload) {
+      const {
+        params: { id }
+      } = this.$route;
+
       getQuestionDetails(payload).then(res => {
         if (res && res.data.code === 200) {
-          let { tag, createTime, ...otherData } = res.data.data;
+          let { tag, createTime, likeCount, ...otherData } = res.data.data;
+          this.like_count = likeCount;
           this.user = {
             creatorName: otherData.creatorName,
             avatar: otherData.avatar,
@@ -230,16 +247,72 @@ export default {
             tag: JSON.parse(tag),
             ...otherData
           };
+
+          this.getThumbupStatus({
+            question_id: id,
+            user_id: sessionStorage.getItem("id")
+          });
         }
+      });
+    },
+    getThumbupStatus(payload) {
+      //获取用户点赞状态
+      getThumbupStatus(payload).then(res => {
+        if (res && res.data.code === 200) {
+          this.like = res.data.data.status;
+        }
+      });
+    },
+    thumbUp(payload) {
+      //改变点赞状态
+      const {
+        params: { id }
+      } = this.$route;
+      const user = this.$store.state.userInfo;
+      thumbUp(payload).then(res => {
+        if (res && res.data.code === 200) {
+          this.getThumbupStatus({
+            question_id: id,
+            user_id: user.id
+          });
+          this.getQuestionDetails({
+            question_id: id,
+            type: "thumbup"
+          });
+        }
+      });
+    },
+    handleThumbUp() {
+      //点赞操作
+      const {
+        params: { id }
+      } = this.$route;
+      const user = this.$store.state.userInfo;
+      if (!user) {
+        this.$message.error("请登录后进行操作");
+        return;
+      }
+      this.thumbUp({
+        question_id: id,
+        user_id: user.id
       });
     }
   },
   created() {
+    this.like = 0;
     this.path = this.$route.path;
     const {
       params: { id }
     } = this.$route;
-    this.getQuestionDetails({ question_id: id });
+    // const user = this.$store.state.userInfo;
+    // this.getThumbupStatus({
+    //   question_id: id,
+    //   user_id: user.id
+    // });
+    this.getQuestionDetails({
+      question_id: id,
+      type: "details"
+    });
   },
   components: {
     User,

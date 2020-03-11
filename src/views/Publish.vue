@@ -140,6 +140,7 @@ export default {
     uploadSuccess(res) {
       // res为图片服务器返回的数据
       // 获取富文本组件实例
+      console.log("上传成功");
       let quill = this.$refs.myQuillEditor.quill;
       //如果上传成功;
       if (res.code === 200 && res.data !== null) {
@@ -149,6 +150,8 @@ export default {
         quill.insertEmbed(length, "image", res.data.url);
         // 调整光标到最后
         quill.setSelection(length + 1);
+      } else if (res.code === 401) {
+        this.$message.error(res.msg);
       } else {
         this.$message.error("图片插入失败");
       }
@@ -204,7 +207,7 @@ export default {
         this.published = true;
         const params = {
           creator: user.accountId,
-          creator_name:user.name,
+          creator_name: user.name,
           avatar: user.avatar_url,
           github_url: user.githubUrl,
           title: this.title,

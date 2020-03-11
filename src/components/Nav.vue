@@ -104,6 +104,7 @@ export default {
     },
     handleLogout() {
       removeCookie("token");
+      sessionStorage.removeItem("id");
       this.userInfo = null;
       this.$store.commit("removeUser");
       const url = window.location.href;
@@ -144,6 +145,7 @@ export default {
       getUser({ token: cookie }).then(res => {
         if (res.data.code === 200) {
           this.userInfo = res.data.data;
+          sessionStorage.setItem("id", res.data.data.id); //保存用户id
           this.$store.commit({
             type: "updateUser",
             userInfo: res.data.data
