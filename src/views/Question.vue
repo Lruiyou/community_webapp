@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <Nav :path="path" />
+    <Nav :path="path" @clearevent="clearUser" />
     <a-row class="common-main" type="flex" justify="center">
       <a-col :xs="24" :sm="24" :md="14" :lg="14" :xl="14">
         <a-card>
@@ -41,13 +41,9 @@
 
             <!-- 评论区 -->
             <div v-for="(item,index) in comments" :key="item.id">
-              <a-comment
-                :author="item.author"
-                :avatar="item.avatar"
-                :content="item.content"
-                :datetime="item.datetime"
-              >
+              <a-comment :author="item.author" :content="item.content" :datetime="item.datetime">
                 <!-- <span slot="actions" @click="showTextarea(index,item.id)">回复</span> -->
+                <img slot="avatar" :src="item.avatar" />
                 <div slot="actions">
                   <span
                     style="margin-right:12px;cursor:pointer"
@@ -64,10 +60,10 @@
                   v-for="(item1) in item.subComments"
                   :key="item1.id"
                   :author="item1.author"
-                  :avatar="item1.avatar"
                   :content="item1.content"
                   :datetime="item1.datetime"
                 >
+                  <img slot="avatar" :src="item1.avatar" />
                   <!-- <span slot="actions" @click="showSubTextarea(index1,item1.id)">回复</span>
                   <div ref="showSubReply" style="display:none">
                     二级评论回复框
@@ -119,11 +115,9 @@
             <!-- 问题的回复框 -->
             <div>
               <a-comment>
-                <a-avatar
-                  slot="avatar"
-                  src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-                  alt="Han Solo"
-                />
+                <!-- <a-avatar slot="avatar" :src="login_user.avatarUrl" alt="Han Solo" /> -->
+                <a-avatar slot="avatar" v-if="login_user == null" icon="user" />
+                <img slot="avatar" v-else :src="login_user.avatarUrl" />
                 <div slot="content">
                   <a-form-item>
                     <a-textarea :rows="4" @change="handleChange" :value="value" placeholder="评论一下吧"></a-textarea>
@@ -158,6 +152,8 @@
 import User from "@/components/User.vue";
 import Relation from "@/components/Relation.vue";
 import Nav from "@/components/Nav.vue";
+import { getUser } from "../api/user";
+import { getCookie } from "../utils/cookieUtils";
 import {
   getQuestionDetails,
   getThumbupStatus,
@@ -174,6 +170,7 @@ export default {
       user: null,
       like: 0,
       like_count: 0,
+      login_user: null,
       comments: [
         {
           id: 1,
@@ -247,10 +244,9 @@ export default {
             tag: JSON.parse(tag),
             ...otherData
           };
-
           this.getThumbupStatus({
             question_id: id,
-            user_id: sessionStorage.getItem("id")
+            user_id: this.login_user.id
           });
         }
       });
@@ -296,6 +292,10 @@ export default {
         question_id: id,
         user_id: user.id
       });
+    },
+    clearUser() {
+      //退出后清除用户信息
+      this.login_user = null;
     }
   },
   created() {
@@ -304,11 +304,21 @@ export default {
     const {
       params: { id }
     } = this.$route;
-    // const user = this.$store.state.userInfo;
-    // this.getThumbupStatus({
-    //   question_id: id,
-    //   user_id: user.id
-    // });
+    let user = this.$store.state.userInfo;
+    if (user) {
+      this.login_user = user;
+    } else {
+      const cookie = getCookie("token");
+      getUser({ token: cookie }).then(res => {
+        if (res.data.code === 200) {
+          this.login_user = res.data.data;
+          this.$store.commit({
+            type: "updateUser",
+            userInfo: res.data.data
+          });
+        }
+      });
+    }
     this.getQuestionDetails({
       question_id: id,
       type: "details"

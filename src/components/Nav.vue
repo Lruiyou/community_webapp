@@ -4,7 +4,7 @@
       <div class="header">
         <a-row type="flex" justify="center">
           <a-col :xs="6" :sm="5" :md="5" :lg="5" :xl="5">
-            <span class="header-logo">Coder论坛</span>
+            <span class="header-logo" style="cursor:pointer">Coder论坛</span>
           </a-col>
           <a-col :xs="0" :sm="0" :md="10" :lg="8" :xl="8">
             <a-input-search
@@ -104,12 +104,15 @@ export default {
     },
     handleLogout() {
       removeCookie("token");
-      sessionStorage.removeItem("id");
+      sessionStorage.removeItem("user");
       this.userInfo = null;
       this.$store.commit("removeUser");
       const url = window.location.href;
       if (url.indexOf("publish") != -1) {
         this.$router.push("/");
+      }
+      if (url.indexOf("question") != -1) {
+        this.$emit("clearevent");
       }
     },
     onSearch(value) {
@@ -145,7 +148,7 @@ export default {
       getUser({ token: cookie }).then(res => {
         if (res.data.code === 200) {
           this.userInfo = res.data.data;
-          sessionStorage.setItem("id", res.data.data.id); //保存用户id
+          sessionStorage.setItem("user", JSON.stringify(res.data.data)); //保存用户id
           this.$store.commit({
             type: "updateUser",
             userInfo: res.data.data

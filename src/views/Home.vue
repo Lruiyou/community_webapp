@@ -38,7 +38,7 @@
                 style="border-radius:2px"
               />
             </a-list-item-meta>
-            {{item.content}}
+            <div style="word-break:break-word">{{item.content}}</div>
           </a-list-item>
         </a-list>
       </a-col>
@@ -102,6 +102,7 @@ export default {
           const { questions, page } = res.data.data;
           this.pagination = { ...this.pagination, ...page };
           this.questionList = questions;
+
           // questions.forEach(element => {
           //   let { tag, fileUrl, ...otherData } = element;
           //   this.questionList.push({
