@@ -6,61 +6,27 @@
       </h3>
     </div>
     <div>
-      <a class="a-item" target="_blank" href="http://www.baidu.com">
-        <div class="entry-title">京东 PC 首页 2019 改版前端总</div>
+      <div v-if="relation.length === 0" class="no-data">
+        <span>暂无数据</span>
+      </div>
+      <router-link
+        class="a-item"
+        v-for="item in relation"
+        :key="item.id"
+        :to="'/question/'+item.id"
+      >
+        <div class="entry-title">{{item.title}}</div>
         <div>
           <div class="entry-meta">
             <img src="https://b-gold-cdn.xitu.io/v3/static/img/zan.e9d7698.svg" class="icon" />
-            <span class="count">729</span>
+            <span class="count">{{item.likeCount}}</span>
           </div>
           <div class="entry-meta">
             <img src="https://b-gold-cdn.xitu.io/v3/static/img/comment.a7c8341.svg" class="icon" />
-            <span class="count">729</span>
+            <span class="count">{{item.commentCount}}</span>
           </div>
         </div>
-      </a>
-
-      <a class="a-item" target="_blank" href="http://www.baidu.com">
-        <div class="entry-title">京东 PC 首页 2019 改版前端总</div>
-        <div>
-          <div class="entry-meta">
-            <img src="https://b-gold-cdn.xitu.io/v3/static/img/zan.e9d7698.svg" class="icon" />
-            <span class="count">729</span>
-          </div>
-          <div class="entry-meta">
-            <img src="https://b-gold-cdn.xitu.io/v3/static/img/comment.a7c8341.svg" class="icon" />
-            <span class="count">729</span>
-          </div>
-        </div>
-      </a>
-
-      <a class="a-item" target="_blank" href="http://www.baidu.com">
-        <div class="entry-title">京东 PC 首页 2019 改版前端总</div>
-        <div>
-          <div class="entry-meta">
-            <img src="https://b-gold-cdn.xitu.io/v3/static/img/zan.e9d7698.svg" class="icon" />
-            <span class="count">729</span>
-          </div>
-          <div class="entry-meta">
-            <img src="https://b-gold-cdn.xitu.io/v3/static/img/comment.a7c8341.svg" class="icon" />
-            <span class="count">729</span>
-          </div>
-        </div>
-      </a>
-
-      <a class="a-item" target="_blank" href="http://www.baidu.com">
-        <div class="entry-title">京东 PC 首页 2019 改版前端总</div>
-        <div>
-          <div class="entry-meta">
-            <img src="https://b-gold-cdn.xitu.io/v3/static/img/zan.e9d7698.svg" class="icon" />
-            <span class="count">729</span>
-          </div>
-          <div class="entry-meta">
-            <img src="https://b-gold-cdn.xitu.io/v3/static/img/comment.a7c8341.svg" class="icon" />
-            <span class="count">729</span>
-          </div>
-        </div>
-      </a>
+      </router-link>
     </div>
   </div>
 </template>
@@ -68,7 +34,15 @@
 
 <script>
 export default {
-  name: "Relation"
+  name: "Relation",
+  props: {
+    relation: {
+      type: Array
+    }
+  },
+  data() {
+    return {};
+  }
 };
 </script>
 
@@ -129,5 +103,11 @@ a:hover {
 .count {
   font-size: 14px;
   margin-left: 0.2rem;
+}
+
+.no-data {
+  text-align: center;
+  height: 100px;
+  padding-top: 40px;
 }
 </style>

@@ -1,6 +1,6 @@
 import request from '@/utils/request';
 
-export function publishQuestion(params) {
+export function publishQuestion(params) {//发布问题
     return request({
         url: '/question',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
@@ -53,6 +53,14 @@ export function thumbUp(params) {//用户点赞操作
     return request({
         url: '/question/thumbup',
         method: 'put',
+        params
+    })
+}
+
+export function getRelativeQuestions(params) {
+    return request({
+        url: '/question/relation',
+        method: 'get',
         params
     })
 }

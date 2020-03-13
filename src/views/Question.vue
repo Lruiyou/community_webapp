@@ -141,7 +141,7 @@
           <User :userData="user" />
         </div>
         <div style="margin-top:20px">
-          <Relation />
+          <Relation :relation="relativeList" />
         </div>
       </a-col>
     </a-row>
@@ -157,7 +157,8 @@ import { getCookie } from "../utils/cookieUtils";
 import {
   getQuestionDetails,
   getThumbupStatus,
-  thumbUp
+  thumbUp,
+  getRelativeQuestions
 } from "@/api/question.js";
 
 let moment = require("moment");
@@ -165,6 +166,7 @@ export default {
   name: "Question",
   data() {
     return {
+      relativeList: [],
       path: null,
       questionInfo: {},
       user: null,
@@ -205,6 +207,36 @@ export default {
         }
       ]
     };
+  },
+  watch: {
+    $route(to) {
+      this.like = 0;
+      const {
+        params: { id }
+      } = to;
+      let user = this.$store.state.userInfo;
+      if (user) {
+        this.login_user = user;
+      } else {
+        const cookie = getCookie("token");
+        getUser({ token: cookie }).then(res => {
+          if (res.data.code === 200) {
+            this.login_user = res.data.data;
+            this.$store.commit({
+              type: "updateUser",
+              userInfo: res.data.data
+            });
+          }
+        });
+      }
+      this.getQuestionDetails({
+        question_id: id,
+        type: "details"
+      });
+      this.getRelated({
+        question_id: id
+      });
+    }
   },
   methods: {
     showTextarea(index, id) {
@@ -296,6 +328,14 @@ export default {
     clearUser() {
       //退出后清除用户信息
       this.login_user = null;
+    },
+    getRelated(payload) {
+      //获取相关问题列表
+      getRelativeQuestions(payload).then(res => {
+        if (res && res.data.code === 200) {
+          this.relativeList = res.data.data;
+        }
+      });
     }
   },
   created() {
@@ -322,6 +362,9 @@ export default {
     this.getQuestionDetails({
       question_id: id,
       type: "details"
+    });
+    this.getRelated({
+      question_id: id
     });
   },
   components: {

@@ -208,7 +208,7 @@ export default {
         const params = {
           creator: user.accountId,
           creator_name: user.name,
-          avatar: user.avatar_url,
+          avatar: user.avatarUrl,
           github_url: user.githubUrl,
           title: this.title,
           content: this.content,
