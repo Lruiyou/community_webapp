@@ -312,14 +312,15 @@ export default {
     },
     handleThumbUp() {
       //点赞操作
+      const cookie = getCookie("token");
+      if (!cookie) {
+        this.$message.error("请登录后进行操作");
+        return;
+      }
       const {
         params: { id }
       } = this.$route;
       const user = this.$store.state.userInfo;
-      if (!user) {
-        this.$message.error("请登录后进行操作");
-        return;
-      }
       this.thumbUp({
         question_id: id,
         user_id: user.id

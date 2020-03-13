@@ -106,7 +106,10 @@ export default {
       removeCookie("token");
       sessionStorage.removeItem("user");
       this.userInfo = null;
-      this.$store.commit("removeUser");
+      this.$store.commit({
+        type: "removeUser",
+        userInfo: null
+      });
       const url = window.location.href;
       if (url.indexOf("publish") != -1) {
         this.$router.push("/");
