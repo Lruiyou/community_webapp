@@ -51,13 +51,13 @@
                   >回复</span>
                   <span
                     style="cursor:pointer"
-                    v-if="item.subComments !== null && item.subComments.length > 0"
+                    v-if="item.replies !== null && item.replies.length > 0"
                   >查看回复</span>
                 </div>
 
                 <!-- 二级评论 -->
                 <a-comment
-                  v-for="(item1) in item.subComments"
+                  v-for="(item1) in item.replies"
                   :key="item1.id"
                   :author="item1.author"
                   :content="item1.content"
@@ -101,7 +101,7 @@
                     small
                     layout="prev, pager, next"
                     :total="50"
-                    v-if="item.subComments !== null && item.subComments.length > 0"
+                    v-if="item.replies !== null && item.replies.length > 0"
                   ></el-pagination>
                 </div>
               </a-comment>
@@ -180,7 +180,7 @@ export default {
           avatar:
             "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
           content: "要显示为评论头像的元素 - 通常是 antd",
-          subComments: [
+          replies: [
             {
               id: 3,
               author: "哈喽",
@@ -203,7 +203,7 @@ export default {
           avatar:
             "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
           content: "要显示为评论头像的元素 - 通常是 antd",
-          subComments: []
+          replies: []
         }
       ]
     };
@@ -349,15 +349,17 @@ export default {
       this.login_user = user;
     } else {
       const cookie = getCookie("token");
-      getUser({ token: cookie }).then(res => {
-        if (res.data.code === 200) {
-          this.login_user = res.data.data;
-          this.$store.commit({
-            type: "updateUser",
-            userInfo: res.data.data
-          });
-        }
-      });
+      if (cookie) {
+        getUser({ token: cookie }).then(res => {
+          if (res.data.code === 200) {
+            this.login_user = res.data.data;
+            this.$store.commit({
+              type: "updateUser",
+              userInfo: res.data.data
+            });
+          }
+        });
+      }
     }
     this.getQuestionDetails({
       question_id: id,

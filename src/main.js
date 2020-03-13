@@ -7,6 +7,7 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import { timeFormat } from './utils/filter';
 import { Button, List, Icon, Menu, Row, Col, Input, Badge, Avatar, Card, Affix, TreeSelect, Divider, Tag, Comment, Form, Pagination, Spin, message, Popconfirm, Skeleton } from 'ant-design-vue'
+import { getCookie } from "./utils/cookieUtils";
 
 Vue.use(ElementUI)
 
@@ -34,6 +35,21 @@ Vue.use(Skeleton)
 
 //时间过滤器
 Vue.filter('timeFormat', timeFormat)
+
+router.beforeEach((to, from, next) => {
+  const cookie = getCookie('token');
+  console.log(from, 'from')
+  if (to.name === 'Home' || to.name === 'Question' || to.name === 'Search') {
+    next()
+  } else {
+    if (cookie) {
+      next()
+    } else {
+      next('/')
+      alert('请先登录');
+    }
+  }
+})
 
 Vue.config.productionTip = false
 
