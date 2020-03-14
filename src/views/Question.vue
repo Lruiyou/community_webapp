@@ -153,7 +153,7 @@ import User from "@/components/User.vue";
 import Relation from "@/components/Relation.vue";
 import Nav from "@/components/Nav.vue";
 import { getUser } from "../api/user";
-import { getCookie } from "../utils/cookieUtils";
+import { getCookie, isExitCookie } from "../utils/cookieUtils";
 import {
   getQuestionDetails,
   getThumbupStatus,
@@ -276,10 +276,12 @@ export default {
             tag: JSON.parse(tag),
             ...otherData
           };
-          this.getThumbupStatus({
-            question_id: id,
-            user_id: this.login_user.id
-          });
+          if (isExitCookie("token")) {
+            this.getThumbupStatus({
+              question_id: id,
+              user_id: this.login_user.id
+            });
+          }
         }
       });
     },
@@ -312,8 +314,7 @@ export default {
     },
     handleThumbUp() {
       //点赞操作
-      const cookie = getCookie("token");
-      if (!cookie) {
+      if (!isExitCookie("token")) {
         this.$message.error("请登录后进行操作");
         return;
       }
