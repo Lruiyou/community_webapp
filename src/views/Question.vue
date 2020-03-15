@@ -40,77 +40,12 @@
             </div>
 
             <!-- 评论区 -->
-            <div v-for="(item,index) in comments" :key="item.id">
-              <a-comment :author="item.author" :content="item.content" :datetime="item.datetime">
-                <!-- <span slot="actions" @click="showTextarea(index,item.id)">回复</span> -->
-                <img slot="avatar" :src="item.avatar" />
-                <div slot="actions">
-                  <span
-                    style="margin-right:12px;cursor:pointer"
-                    @click="showTextarea(index,item.id)"
-                  >回复</span>
-                  <span
-                    style="cursor:pointer"
-                    v-if="item.replies !== null && item.replies.length > 0"
-                  >查看回复</span>
-                </div>
-
-                <!-- 二级评论 -->
-                <a-comment
-                  v-for="(item1) in item.replies"
-                  :key="item1.id"
-                  :author="item1.author"
-                  :content="item1.content"
-                  :datetime="item1.datetime"
-                >
-                  <img slot="avatar" :src="item1.avatar" />
-                  <!-- <span slot="actions" @click="showSubTextarea(index1,item1.id)">回复</span>
-                  <div ref="showSubReply" style="display:none">
-                    二级评论回复框
-                    <a-form-item>
-                      <a-textarea :rows="4" :value="value" :placeholder="'回复'+item1.author"></a-textarea>
-                    </a-form-item>
-                    <a-form-item>
-                      <a-button
-                        htmlType="submit"
-                        :loading="submitting"
-                        type="primary"
-                        style="margin-right:8px"
-                      >确定</a-button>
-                      <a-button htmlType="submit" @click="showSubTextarea(index1,item1.id)">取消</a-button>
-                    </a-form-item>
-                  </div>-->
-                </a-comment>
-                <!-- 评论的回复框 -->
-                <div ref="showReply" style="display:none">
-                  <a-form-item>
-                    <a-textarea :rows="4" :value="value" placeholder="回复Han Solo"></a-textarea>
-                  </a-form-item>
-                  <a-form-item>
-                    <a-button
-                      htmlType="submit"
-                      :loading="submitting"
-                      type="primary"
-                      style="margin-right:8px"
-                    >确定</a-button>
-                    <a-button htmlType="submit" @click="showTextarea(index,item.id)">取消</a-button>
-                  </a-form-item>
-                </div>
-                <div class="pagination-div">
-                  <el-pagination
-                    small
-                    layout="prev, pager, next"
-                    :total="50"
-                    v-if="item.replies !== null && item.replies.length > 0"
-                  ></el-pagination>
-                </div>
-              </a-comment>
-            </div>
+            <Comment :comments="commentData" />
 
             <!-- 分页 -->
-            <div class="pagination-div">
+            <!-- <div class="pagination-div">
               <el-pagination small background layout="prev, pager, next" :total="1000"></el-pagination>
-            </div>
+            </div>-->
 
             <!-- 问题的回复框 -->
             <div>
@@ -120,15 +55,27 @@
                 <img slot="avatar" v-else :src="login_user.avatarUrl" />
                 <div slot="content">
                   <a-form-item>
-                    <a-textarea :rows="4" @change="handleChange" :value="value" placeholder="评论一下吧"></a-textarea>
+                    <a-textarea
+                      :rows="4"
+                      v-model="commentContent"
+                      placeholder="评论一下吧"
+                      :autosize="textSize"
+                    ></a-textarea>
                   </a-form-item>
                   <a-form-item>
                     <a-button
                       htmlType="submit"
+                      shape="round"
                       :loading="submitting"
                       @click="handleSubmit"
                       type="primary"
                     >确定</a-button>
+                    <a-button
+                      style="margin-left:8px"
+                      shape="round"
+                      type="default"
+                      @click="handleCancel"
+                    >取消</a-button>
                   </a-form-item>
                 </div>
               </a-comment>
@@ -152,6 +99,7 @@
 import User from "@/components/User.vue";
 import Relation from "@/components/Relation.vue";
 import Nav from "@/components/Nav.vue";
+import Comment from "@/components/Comment.vue";
 import { getUser } from "../api/user";
 import { getCookie, isExitCookie } from "../utils/cookieUtils";
 import {
@@ -160,12 +108,16 @@ import {
   thumbUp,
   getRelativeQuestions
 } from "@/api/question.js";
+import { createComment } from "../api/comment";
+import * as CommentData from "../mock/mockdata";
 
 let moment = require("moment");
 export default {
   name: "Question",
   data() {
     return {
+      textSize: { minRows: 4, maxRows: 6 },
+      commentData: [], //测试评论组件
       relativeList: [],
       path: null,
       questionInfo: {},
@@ -173,39 +125,8 @@ export default {
       like: 0,
       like_count: 0,
       login_user: null,
-      comments: [
-        {
-          id: 1,
-          author: "Han Solo",
-          avatar:
-            "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
-          content: "要显示为评论头像的元素 - 通常是 antd",
-          replies: [
-            {
-              id: 3,
-              author: "哈喽",
-              avatar:
-                "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
-              content: "要显示为评论头像的元素 - 通常是 antd"
-            },
-            {
-              id: 4,
-              author: "你好",
-              avatar:
-                "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
-              content: "要显示为评论头像的元素 - 通常是 antd"
-            }
-          ]
-        },
-        {
-          id: 2,
-          author: "Han Solo",
-          avatar:
-            "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
-          content: "要显示为评论头像的元素 - 通常是 antd",
-          replies: []
-        }
-      ]
+      commentContent: "", //评论框内容
+      submitting: false
     };
   },
   watch: {
@@ -239,24 +160,6 @@ export default {
     }
   },
   methods: {
-    showTextarea(index, id) {
-      console.log(id);
-      const displayAttr = this.$refs.showReply[index].style.display;
-      if (displayAttr === "none") {
-        this.$refs.showReply[index].style.display = "block";
-      } else {
-        this.$refs.showReply[index].style.display = "none";
-      }
-    },
-    showSubTextarea(index, id) {
-      console.log(id, "id");
-      const displayAttr = this.$refs.showSubReply[index].style.display;
-      if (displayAttr === "none") {
-        this.$refs.showSubReply[index].style.display = "block";
-      } else {
-        this.$refs.showSubReply[index].style.display = "none";
-      }
-    },
     getQuestionDetails(payload) {
       const {
         params: { id }
@@ -338,9 +241,49 @@ export default {
           this.relativeList = res.data.data;
         }
       });
+    },
+    handleSubmit() {
+      if (!isExitCookie("token")) {
+        //未登录，不能进行操作
+        this.$message.error("请先登录");
+        return;
+      } else {
+        if (this.commentContent) {
+          this.submitting = true;
+          //提交评论
+          const {
+            params: { id }
+          } = this.$route; //问题id
+
+          let user = this.$store.state.userInfo; //获取用户对象
+
+          createComment({
+            topicId: id,
+            fromUid: user.id,
+            content: this.commentContent,
+            fromName: user.name,
+            fromAvatar: user.avatarUrl
+          }).then(res => {
+            if (res && res.data.code === 200) {
+              this.commentContent = "";
+              this.submitting = false;
+              //成功调获取评论的接口,刷新评论
+              console.log(res, "res");
+            } else {
+              this.$message.error(res.data.data.msg);
+            }
+          });
+        } else {
+          this.$message.error("请输入评论内容");
+        }
+      }
+    },
+    handleCancel() {
+      this.commentContent = "";
     }
   },
   created() {
+    this.commentData = CommentData.comment.data;
     this.like = 0;
     this.path = this.$route.path;
     const {
@@ -374,7 +317,8 @@ export default {
   components: {
     User,
     Relation,
-    Nav
+    Nav,
+    Comment
   }
 };
 </script>

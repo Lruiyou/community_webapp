@@ -1,4 +1,4 @@
-import request from '@/utils/request';
+import request from '@/service/request';
 
 export function publishQuestion(params) {//发布问题
     return request({
