@@ -1,12 +1,12 @@
 <!--评论模块-->
 <template>
-  <div class="container">
-    <div class="comment" v-for="(item,index) in comments" :key="index">
+  <div class="container" v-if="commentData != null">
+    <div class="comment" v-for="(item,index) in commentData.comments" :key="index">
       <div class="info">
         <img class="avatar" :src="item.fromAvatar" width="36" height="36" />
         <div class="right">
           <div class="name">{{item.fromName}}</div>
-          <div class="date">{{item.date}}</div>
+          <div class="date">{{item.createTime | timeFormat}}</div>
         </div>
       </div>
       <div class="content">{{item.content}}</div>
@@ -15,31 +15,13 @@
           <i class="iconfont icon-comment"></i>
           <span>回复</span>
         </span>
-        <span class="comment-reply">
+        <span class="comment-reply" v-if="item.replyCount > 0" @click="handleShowReply(item)">
           <i class="iconfont icon-like"></i>
           <span>展开</span>
         </span>
       </div>
+
       <div class="reply">
-        <div class="item" v-for="(reply,index) in item.reply" :key="index">
-          <div class="reply-content">
-            <span class="from-name">{{reply.fromName}}</span>
-            <span>:</span>
-            <span class="to-name">@{{reply.toName}}</span>
-            <span>{{reply.content}}</span>
-          </div>
-          <div class="reply-bottom">
-            <span>{{reply.date}}</span>
-            <span class="reply-text" @click="showCommentInput(item, reply)">
-              <i class="iconfont icon-comment"></i>
-              <span>回复</span>
-            </span>
-          </div>
-        </div>
-        <div class="write-reply" v-if="item.reply.length > 0" @click="showCommentInput(item)">
-          <i class="el-icon-edit"></i>
-          <span class="add-comment">添加新评论</span>
-        </div>
         <transition name="fade">
           <div class="input-wrapper" v-if="showItemId === item.id">
             <el-input
@@ -57,12 +39,18 @@
           </div>
         </transition>
       </div>
-      <div class="pagination-div">
+      <!-- <div class="pagination-div">
         <el-pagination small layout="prev, pager, next" :total="50"></el-pagination>
-      </div>
+      </div>-->
     </div>
     <div class="pagination-div">
-      <el-pagination small background layout="prev, pager, next" :total="1000"></el-pagination>
+      <el-pagination
+        small
+        background
+        layout="prev, pager, next"
+        :total="commentData.page.total"
+        @size-change="handlePageChange"
+      ></el-pagination>
     </div>
   </div>
 </template>
@@ -72,9 +60,11 @@ import Vue from "vue";
 
 export default {
   props: {
-    comments: {
+    commentData: {
       type: Array,
-      required: true
+      default: function() {
+        return {};
+      }
     }
   },
   components: {},
@@ -84,8 +74,14 @@ export default {
       showItemId: ""
     };
   },
-  computed: {},
   methods: {
+    /**
+     * 切换评论的页码，重新调接口
+     */
+    handlePageChange(page) {
+      this.$emit("pageChangeFunc", page);
+    },
+
     /**
      * 点赞
      */
@@ -101,6 +97,13 @@ export default {
         }
         item.isLike = !item.isLike;
       }
+    },
+
+    /**
+     * 展开回复
+     */
+    handleShowReply(item) {
+      console.log(item, "item");
     },
 
     /**
@@ -131,9 +134,7 @@ export default {
       this.showItemId = item.id;
     }
   },
-  created() {
-    console.log(this.comments);
-  }
+  created() {}
 };
 </script>
 

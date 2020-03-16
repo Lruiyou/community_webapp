@@ -39,8 +39,17 @@
               <h3>{{questionInfo.commentCount}}条评论</h3>
             </div>
 
-            <!-- 评论区 -->
-            <Comment :comments="commentData" />
+            <!-- 无评论时显示 -->
+            <div v-if="questionInfo.commentCount == 0" class="no-commont-text">
+              <h3>还没有人评论，快来抢占沙发</h3>
+            </div>
+
+            <!-- 评论区 :有评论时显示-->
+            <Comment
+              :commentData="commentData"
+              v-if="questionInfo.commentCount > 0"
+              @pageChangeFunc="handlePageChange"
+            />
 
             <!-- 分页 -->
             <!-- <div class="pagination-div">
@@ -58,7 +67,7 @@
                     <a-textarea
                       :rows="4"
                       v-model="commentContent"
-                      placeholder="评论一下吧"
+                      placeholder="写下你的评论..."
                       :autosize="textSize"
                     ></a-textarea>
                   </a-form-item>
@@ -108,8 +117,8 @@ import {
   thumbUp,
   getRelativeQuestions
 } from "@/api/question.js";
-import { createComment } from "../api/comment";
-import * as CommentData from "../mock/mockdata";
+import { getCommentList, createComment } from "../api/comment";
+//import * as CommentData from "../mock/mockdata";
 
 let moment = require("moment");
 export default {
@@ -117,7 +126,7 @@ export default {
   data() {
     return {
       textSize: { minRows: 4, maxRows: 6 },
-      commentData: [], //测试评论组件
+      commentData: [], //评论组件
       relativeList: [],
       path: null,
       questionInfo: {},
@@ -157,9 +166,28 @@ export default {
       this.getRelated({
         question_id: id
       });
+      this.getCommentList({
+        question_id: id
+      });
     }
   },
   methods: {
+    /**
+     * 评论的分页
+     */
+    handlePageChange(page) {
+      const {
+        params: { id }
+      } = this.$route;
+      this.getCommentList({
+        question_id: id,
+        currentPage: page,
+        pageSize: 10
+      });
+    },
+    /**
+     * 初始化时花获取问题详情
+     */
     getQuestionDetails(payload) {
       const {
         params: { id }
@@ -193,6 +221,13 @@ export default {
       getThumbupStatus(payload).then(res => {
         if (res && res.data.code === 200) {
           this.like = res.data.data.status;
+        }
+      });
+    },
+    getCommentList(payload) {
+      getCommentList(payload).then(res => {
+        if (res && res.data.code === 200) {
+          this.commentData = res.data.data;
         }
       });
     },
@@ -268,7 +303,7 @@ export default {
               this.commentContent = "";
               this.submitting = false;
               //成功调获取评论的接口,刷新评论
-              console.log(res, "res");
+              this.getCommentList({ question_id: id });
             } else {
               this.$message.error(res.data.data.msg);
             }
@@ -283,7 +318,7 @@ export default {
     }
   },
   created() {
-    this.commentData = CommentData.comment.data;
+    //this.commentData = CommentData.comment.data;
     this.like = 0;
     this.path = this.$route.path;
     const {
@@ -313,6 +348,9 @@ export default {
     this.getRelated({
       question_id: id
     });
+    this.getCommentList({
+      question_id: id
+    });
   },
   components: {
     User,
@@ -324,6 +362,14 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.no-commont-text {
+  height: 100px;
+  text-align: center;
+  padding-top: 40px;
+  background-color: rgb(235, 235, 235);
+  margin-top: 1rem;
+}
+
 .tag-div {
   width: 100%;
   border-top: 1px solid rgb(232, 232, 232);
