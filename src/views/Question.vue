@@ -216,6 +216,9 @@ export default {
         }
       });
     },
+    /**
+     * 获取点赞状态
+     */
     getThumbupStatus(payload) {
       //获取用户点赞状态
       getThumbupStatus(payload).then(res => {
@@ -224,6 +227,9 @@ export default {
         }
       });
     },
+    /**
+     * 获取评论列表
+     */
     getCommentList(payload) {
       getCommentList(payload).then(res => {
         if (res && res.data.code === 200) {
@@ -304,6 +310,11 @@ export default {
               this.submitting = false;
               //成功调获取评论的接口,刷新评论
               this.getCommentList({ question_id: id });
+
+              this.getQuestionDetails({
+                question_id: id,
+                type: "details"
+              });
             } else {
               this.$message.error(res.data.data.msg);
             }
