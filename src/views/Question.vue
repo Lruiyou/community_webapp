@@ -2,7 +2,7 @@
   <div class="home">
     <Nav :path="path" @clearevent="clearUser" />
     <a-row class="common-main" type="flex" justify="center">
-      <a-col :xs="24" :sm="24" :md="14" :lg="14" :xl="14">
+      <a-col :xs="24" :sm="24" :md="24" :lg="16" :xl="14">
         <a-card>
           <div slot="title">
             <div>
@@ -13,7 +13,7 @@
               {{questionInfo.createTime}}
             </div>
           </div>
-          <div style="word-break:break-word" v-html="questionInfo.htmlContent"></div>
+          <div class="content-image" v-html="questionInfo.htmlContent"></div>
           <div class="tag-div">
             <div class="tags">
               <a-tag v-for="(item,index) in questionInfo.tag" :key="index">{{item}}</a-tag>
@@ -92,7 +92,7 @@
           </div>
         </a-card>
       </a-col>
-      <a-col :xs="0" :sm="0" :md="5" :lg="5" :xl="5">
+      <a-col :xs="0" :sm="0" :md="0" :lg="5" :xl="5">
         <div>
           <User :userData="user" />
         </div>
@@ -315,7 +315,7 @@ export default {
                 question_id: id,
                 type: "details"
               });
-            } else {
+            } else if (res && res.data.code === 402) {
               this.$message.error(res.data.data.msg);
             }
           });
@@ -373,6 +373,15 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.content-image {
+  word-break: break-word;
+}
+
+p img {
+  height: 100%;
+  width: 100%;
+}
+
 .no-commont-text {
   height: 100px;
   text-align: center;
