@@ -39,23 +39,6 @@
               <h3>{{questionInfo.commentCount}}条评论</h3>
             </div>
 
-            <!-- 无评论时显示 -->
-            <div v-if="questionInfo.commentCount == 0" class="no-commont-text">
-              <h3>还没有人评论，快来抢占沙发</h3>
-            </div>
-
-            <!-- 评论区 :有评论时显示-->
-            <Comment
-              :commentData="commentData"
-              v-if="questionInfo.commentCount > 0"
-              @pageChangeFunc="handlePageChange"
-            />
-
-            <!-- 分页 -->
-            <!-- <div class="pagination-div">
-              <el-pagination small background layout="prev, pager, next" :total="1000"></el-pagination>
-            </div>-->
-
             <!-- 问题的回复框 -->
             <div>
               <a-comment>
@@ -89,6 +72,23 @@
                 </div>
               </a-comment>
             </div>
+
+            <!-- 无评论时显示 -->
+            <div v-if="questionInfo.commentCount == 0" class="no-commont-text">
+              <h3>还没有人评论，快来抢占沙发</h3>
+            </div>
+
+            <!-- 评论区 :有评论时显示-->
+            <Comment
+              :commentData="commentData"
+              v-if="questionInfo.commentCount > 0"
+              @pageChangeFunc="handlePageChange"
+            />
+
+            <!-- 分页 -->
+            <!-- <div class="pagination-div">
+              <el-pagination small background layout="prev, pager, next" :total="1000"></el-pagination>
+            </div>-->
           </div>
         </a-card>
       </a-col>
@@ -182,7 +182,7 @@ export default {
       this.getCommentList({
         question_id: id,
         currentPage: page,
-        pageSize: 10
+        pageSize: 5
       });
     },
     /**
@@ -373,21 +373,11 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.content-image {
-  word-break: break-word;
-}
-
-p img {
-  height: 100%;
-  width: 100%;
-}
-
 .no-commont-text {
-  height: 100px;
+  height: 140px;
   text-align: center;
-  padding-top: 40px;
+  padding-top: 60px;
   background-color: rgb(235, 235, 235);
-  margin-top: 1rem;
 }
 
 .tag-div {

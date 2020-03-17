@@ -47,9 +47,10 @@
       <el-pagination
         small
         background
+        :page-size="pagesize"
         layout="prev, pager, next"
         :total="commentData.page.total"
-        @size-change="handlePageChange"
+        @current-change="handleCurrentChange"
       ></el-pagination>
     </div>
   </div>
@@ -70,6 +71,7 @@ export default {
   components: {},
   data() {
     return {
+      pagesize: 5,
       inputComment: "",
       showItemId: ""
     };
@@ -78,7 +80,7 @@ export default {
     /**
      * 切换评论的页码，重新调接口
      */
-    handlePageChange(page) {
+    handleCurrentChange(page) {
       this.$emit("pageChangeFunc", page);
     },
 

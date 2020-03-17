@@ -30,3 +30,8 @@ body{
   padding: 14px;
     zoom: 1;
 }
+
+.ant-comment-inner {
+  display: flex;
+  padding: 20px 0px 0px 0px;
+}
