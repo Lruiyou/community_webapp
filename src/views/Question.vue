@@ -38,7 +38,6 @@
             <div class="reply">
               <h3>{{questionInfo.commentCount}}条评论</h3>
             </div>
-
             <!-- 问题的回复框 -->
             <div>
               <a-comment>
@@ -72,7 +71,6 @@
                 </div>
               </a-comment>
             </div>
-
             <!-- 无评论时显示 -->
             <div v-if="questionInfo.commentCount == 0" class="no-commont-text">
               <h3>还没有人评论，快来抢占沙发</h3>
@@ -83,7 +81,7 @@
               :commentData="commentData"
               v-if="questionInfo.commentCount > 0"
               @pageChangeFunc="handlePageChange"
-              @updateStateFunc="updateQuestionInfo"
+              @updateStateFunc="updateState"
             />
 
             <!-- 分页 -->
@@ -128,7 +126,7 @@ export default {
   data() {
     return {
       textSize: { minRows: 4, maxRows: 6 },
-      commentData: [], //评论组件
+      commentData: {}, //评论组件
       relativeList: [],
       path: null,
       questionInfo: {},
@@ -185,13 +183,12 @@ export default {
             }
           });
         }
-        console.log(this.commentData, "commentData");
       });
     },
     /**
      * Comment组件的函数，调接口更新评论数
      */
-    updateQuestionInfo() {
+    updateState() {
       const {
         params: { id }
       } = this.$route;
@@ -263,14 +260,6 @@ export default {
       getCommentList(payload).then(res => {
         if (res && res.data.code === 200) {
           this.commentData = res.data.data;
-          this.commentData.comments.forEach(item => {
-            this.getReplyList(
-              {
-                comment_id: item.id
-              },
-              item
-            );
-          });
         }
       });
     },
@@ -320,6 +309,10 @@ export default {
         }
       });
     },
+
+    /**
+     * 提交对问题的评论
+     */
     handleSubmit() {
       if (!isExitCookie("token")) {
         //未登录，不能进行操作
@@ -346,7 +339,14 @@ export default {
               this.commentContent = "";
               this.submitting = false;
               //成功调获取评论的接口,刷新评论
-              this.getCommentList({ question_id: id });
+              //this.getCommentList({ question_id: id });
+              if (this.commentData.page.total < 5) {
+                this.commentData.comments.unshift(res.data.data);
+              } else {
+                this.commentData.comments.pop();
+                this.commentData.comments.unshift(res.data.data);
+                console.log(this.commentData, "commentData");
+              }
 
               this.getQuestionDetails({
                 question_id: id,
@@ -366,7 +366,6 @@ export default {
     }
   },
   created() {
-    //this.commentData = CommentData.comment.data;
     this.like = 0;
     this.path = this.$route.path;
     const {

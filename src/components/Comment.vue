@@ -15,10 +15,10 @@
           <i class="iconfont icon-comment"></i>
           <span>回复</span>
         </span>
-        <!-- <span class="comment-reply" v-if="item.replyCount > 0 " @click="handleShowReply(item)">
+        <span class="comment-reply" v-if="item.replyCount > 0" @click="handleShowReply(item)">
           <i class="iconfont icon-like"></i>
           <span style="margin-left: 12px;">展开回复</span>
-        </span>-->
+        </span>
       </div>
 
       <div class="reply">
@@ -105,7 +105,6 @@
 import Vue from "vue";
 import { isExitCookie } from "../utils/cookieUtils";
 import { getReplyList, createReply } from "../api/reply";
-
 export default {
   props: {
     commentData: {
@@ -125,6 +124,7 @@ export default {
       showItemId: ""
     };
   },
+
   methods: {
     /**
      * 后端接口：获取回复列表
@@ -234,8 +234,18 @@ export default {
           //刷新总评论数
           this.$emit("updateStateFunc");
           this.inputComment = "";
-          //刷新回复列表
-          this.getReplyList({ comment_id: comment.id }, comment);
+          this.commentData.comments.forEach(item => {
+            if (item.id === comment.id) {
+              //找到回复的id
+              if (!item.reply.page) {
+                //没有展开
+                item.reply.replies.unshift(res.data.data);
+              } else {
+                //已经展开了，直接调接口刷新
+                this.getReplyList({ comment_id: comment.id }, comment);
+              }
+            }
+          });
         }
       });
     },
@@ -274,8 +284,19 @@ export default {
           //刷新总评论数
           this.$emit("updateStateFunc");
           this.inputComment = "";
-          //刷新回复列表
-          this.getReplyList({ comment_id: comment.id }, comment);
+          this.commentData.comments.forEach(item => {
+            if (item.id === comment.id) {
+              //找到回复的id
+              if (!item.reply.page) {
+                //没有展开
+                item.reply.replies.unshift(res.data.data);
+              } else {
+                //已经展开了，直接调接口刷新
+                this.showItemId = "";
+                this.getReplyList({ comment_id: comment.id }, comment);
+              }
+            }
+          });
         }
       });
     },
