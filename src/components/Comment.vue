@@ -15,13 +15,52 @@
           <i class="iconfont icon-comment"></i>
           <span>回复</span>
         </span>
-        <span class="comment-reply" v-if="item.replyCount > 0" @click="handleShowReply(item)">
+        <!-- <span class="comment-reply" v-if="item.replyCount > 0 " @click="handleShowReply(item)">
           <i class="iconfont icon-like"></i>
-          <span>展开</span>
-        </span>
+          <span style="margin-left: 12px;">展开回复</span>
+        </span>-->
       </div>
 
       <div class="reply">
+        <div class="item" v-for="(reply,index) in item.reply.replies" :key="index">
+          <div class="reply-content">
+            <span class="from-name">{{reply.fromName}}</span>
+            <span>:</span>
+            <span class="to-name">@{{reply.toName}}</span>
+            <span>{{reply.content}}</span>
+          </div>
+          <div class="reply-bottom">
+            <span>{{reply.createTime | timeFormat}}</span>
+            <span class="reply-text" @click="showCommentInput(item, reply)">
+              <i class="iconfont icon-comment"></i>
+              <span>回复</span>
+            </span>
+          </div>
+          <transition name="fade">
+            <div class="input-wrapper" v-if="showItemId === reply.id">
+              <el-input
+                class="gray-bg-input"
+                v-model="inputComment"
+                type="textarea"
+                :rows="3"
+                autofocus
+                :placeholder="placeholder"
+              ></el-input>
+              <div class="btn-control">
+                <span class="cancel" @click="cancel">取消</span>
+                <el-button class="btn" type="success" round @click="commitReply(item,reply)">确定</el-button>
+              </div>
+            </div>
+          </transition>
+        </div>
+        <div
+          class="write-reply"
+          v-if="item.reply.replies.length > 0"
+          @click="showCommentInput(item)"
+        >
+          <i class="el-icon-edit"></i>
+          <span class="add-comment">添加新评论</span>
+        </div>
         <transition name="fade">
           <div class="input-wrapper" v-if="showItemId === item.id">
             <el-input
@@ -30,18 +69,24 @@
               type="textarea"
               :rows="3"
               autofocus
-              placeholder="写下你的评论"
+              :placeholder="placeholder"
             ></el-input>
             <div class="btn-control">
               <span class="cancel" @click="cancel">取消</span>
-              <el-button class="btn" type="success" round @click="commitComment">确定</el-button>
+              <el-button class="btn" type="success" round @click="commitComment(item)">确定</el-button>
             </div>
           </div>
         </transition>
       </div>
-      <!-- <div class="pagination-div">
-        <el-pagination small layout="prev, pager, next" :total="50"></el-pagination>
-      </div>-->
+      <div class="pagination-div" v-if="item.reply.page != null">
+        <el-pagination
+          small
+          layout="prev, pager, next"
+          :total="item.reply.page.total"
+          :page-size="pagesize"
+          @current-change="handleReplyCurrentChange($event,item)"
+        ></el-pagination>
+      </div>
     </div>
     <div class="pagination-div">
       <el-pagination
@@ -58,6 +103,8 @@
 
 <script>
 import Vue from "vue";
+import { isExitCookie } from "../utils/cookieUtils";
+import { getReplyList, createReply } from "../api/reply";
 
 export default {
   props: {
@@ -71,6 +118,8 @@ export default {
   components: {},
   data() {
     return {
+      placeholder: "",
+      showReply: true,
       pagesize: 5,
       inputComment: "",
       showItemId: ""
@@ -78,10 +127,39 @@ export default {
   },
   methods: {
     /**
+     * 后端接口：获取回复列表
+     */
+    getReplyList(payload, comment) {
+      getReplyList(payload).then(res => {
+        if (res && res.data.code === 200) {
+          const { replies, page } = res.data.data;
+          this.commentData.comments.map(item => {
+            if (item.id === comment.id) {
+              item.reply.replies = replies;
+              item.reply.page = page;
+            }
+          });
+        }
+      });
+    },
+    /**
      * 切换评论的页码，重新调接口
      */
     handleCurrentChange(page) {
       this.$emit("pageChangeFunc", page);
+    },
+
+    /**
+     *  切换回复的页码，重新调接口
+     */
+    handleReplyCurrentChange(page, item) {
+      this.getReplyList(
+        {
+          comment_id: item.id,
+          currentPage: page
+        },
+        item
+      );
     },
 
     /**
@@ -105,7 +183,12 @@ export default {
      * 展开回复
      */
     handleShowReply(item) {
-      console.log(item, "item");
+      this.getReplyList(
+        {
+          comment_id: item.id
+        },
+        item
+      );
     },
 
     /**
@@ -113,13 +196,88 @@ export default {
      */
     cancel() {
       this.showItemId = "";
+      this.inputComment = "";
     },
 
     /**
      * 提交评论
      */
-    commitComment() {
-      console.log(this.inputComment);
+    commitComment(comment) {
+      if (!isExitCookie) {
+        this.$message.error("请登录后再评论");
+        return;
+      }
+      if (!this.inputComment) {
+        this.$message.error("请输入评论内容");
+        return;
+      }
+
+      const {
+        params: { id }
+      } = this.$route; //问题id
+
+      let user = this.$store.state.userInfo;
+
+      createReply({
+        topicId: id,
+        commentId: comment.id,
+        replyId: comment.id,
+        fromUid: user.id,
+        fromName: user.name,
+        fromAvatar: user.avatarUrl,
+        toUid: comment.fromUid,
+        toName: comment.fromName,
+        toAvatar: comment.fromAvatar,
+        content: this.inputComment
+      }).then(res => {
+        if (res && res.data.code === 200) {
+          //刷新总评论数
+          this.$emit("updateStateFunc");
+          this.inputComment = "";
+          //刷新回复列表
+          this.getReplyList({ comment_id: comment.id }, comment);
+        }
+      });
+    },
+    /**
+     * 提交回复
+     */
+    commitReply(comment, reply) {
+      if (!isExitCookie) {
+        this.$message.error("请登录后再评论");
+        return;
+      }
+      if (!this.inputComment) {
+        this.$message.error("请输入回复内容");
+        return;
+      }
+
+      const {
+        params: { id }
+      } = this.$route; //问题id
+
+      let user = this.$store.state.userInfo;
+
+      createReply({
+        topicId: id,
+        commentId: comment.id,
+        replyId: reply.id,
+        fromUid: user.id,
+        fromName: user.name,
+        fromAvatar: user.avatarUrl,
+        toUid: comment.fromUid,
+        toName: comment.fromName,
+        toAvatar: comment.fromAvatar,
+        content: this.inputComment
+      }).then(res => {
+        if (res && res.data.code === 200) {
+          //刷新总评论数
+          this.$emit("updateStateFunc");
+          this.inputComment = "";
+          //刷新回复列表
+          this.getReplyList({ comment_id: comment.id }, comment);
+        }
+      });
     },
 
     /**
@@ -128,12 +286,14 @@ export default {
      * reply: 当前回复的评论
      */
     showCommentInput(item, reply) {
+      this.inputComment = "";
       if (reply) {
-        this.inputComment = "@" + reply.fromName + " ";
+        this.placeholder = "@" + reply.fromName + " ";
+        this.showItemId = reply.id;
       } else {
-        this.inputComment = "";
+        this.placeholder = "回复 " + item.fromName;
+        this.showItemId = item.id;
       }
-      this.showItemId = item.id;
     }
   },
   created() {}
@@ -154,12 +314,13 @@ export default {
 .container .comment {
   display: flex;
   flex-direction: column;
-  padding: 10px;
-  border-bottom: 1px solid #f2f6fc;
+  padding: 0px, 10px, 0px, 10px;
+  border-bottom: 1px solid #e8e8e8;
 }
 .container .comment .info {
   display: flex;
   align-items: center;
+  padding-top: 15px;
 }
 .container .comment .info .avatar {
   border-radius: 50%;
@@ -183,7 +344,7 @@ export default {
   font-size: 16px;
   color: #303133;
   line-height: 20px;
-  padding: 10px 0;
+  padding: 10px 6px;
   display: flex;
 }
 .container .comment .control {

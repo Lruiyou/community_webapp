@@ -83,6 +83,7 @@
               :commentData="commentData"
               v-if="questionInfo.commentCount > 0"
               @pageChangeFunc="handlePageChange"
+              @updateStateFunc="updateQuestionInfo"
             />
 
             <!-- 分页 -->
@@ -118,6 +119,7 @@ import {
   getRelativeQuestions
 } from "@/api/question.js";
 import { getCommentList, createComment } from "../api/comment";
+import { getReplyList } from "../api/reply";
 //import * as CommentData from "../mock/mockdata";
 
 let moment = require("moment");
@@ -172,6 +174,33 @@ export default {
     }
   },
   methods: {
+    getReplyList(payload, comment) {
+      getReplyList(payload).then(res => {
+        if (res && res.data.code === 200) {
+          this.commentData.comments.map(item => {
+            const { replies } = res.data.data;
+            if (item.id === comment.id) {
+              item.reply.page = res.data.data.page;
+              item.reply.replies = replies;
+            }
+          });
+        }
+        console.log(this.commentData, "commentData");
+      });
+    },
+    /**
+     * Comment组件的函数，调接口更新评论数
+     */
+    updateQuestionInfo() {
+      const {
+        params: { id }
+      } = this.$route;
+
+      this.getQuestionDetails({
+        question_id: id,
+        type: "details"
+      });
+    },
     /**
      * 评论的分页
      */
@@ -234,6 +263,14 @@ export default {
       getCommentList(payload).then(res => {
         if (res && res.data.code === 200) {
           this.commentData = res.data.data;
+          this.commentData.comments.forEach(item => {
+            this.getReplyList(
+              {
+                comment_id: item.id
+              },
+              item
+            );
+          });
         }
       });
     },
