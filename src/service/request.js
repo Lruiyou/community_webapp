@@ -8,9 +8,8 @@ const service = axios.create({
 service.interceptors.response.use(response => {
     return response;
 }, error => {
-    console.log(error, 'error')
     if (error.code === 'ECONNABORTED' && error.message.indexOf('timeout') !== -1) {
-        console.log("超时")
+        alert("请求超时，请重试")
     }
 })
 

@@ -81,7 +81,6 @@
               :commentData="commentData"
               v-if="questionInfo.commentCount > 0"
               @pageChangeFunc="handlePageChange"
-              @updateStateFunc="updateState"
             />
 
             <!-- 分页 -->
@@ -186,19 +185,6 @@ export default {
       });
     },
     /**
-     * Comment组件的函数，调接口更新评论数
-     */
-    updateState() {
-      const {
-        params: { id }
-      } = this.$route;
-
-      this.getQuestionDetails({
-        question_id: id,
-        type: "details"
-      });
-    },
-    /**
      * 评论的分页
      */
     handlePageChange(page) {
@@ -233,6 +219,7 @@ export default {
             tag: JSON.parse(tag),
             ...otherData
           };
+
           if (isExitCookie("token")) {
             this.getThumbupStatus({
               question_id: id,
@@ -338,14 +325,11 @@ export default {
             if (res && res.data.code === 200) {
               this.commentContent = "";
               this.submitting = false;
-              //成功调获取评论的接口,刷新评论
-              //this.getCommentList({ question_id: id });
               if (this.commentData.page.total < 5) {
                 this.commentData.comments.unshift(res.data.data);
               } else {
                 this.commentData.comments.pop();
                 this.commentData.comments.unshift(res.data.data);
-                console.log(this.commentData, "commentData");
               }
 
               this.getQuestionDetails({
@@ -353,6 +337,7 @@ export default {
                 type: "details"
               });
             } else if (res && res.data.code === 402) {
+              this.submitting = false;
               this.$message.error(res.data.data.msg);
             }
           });

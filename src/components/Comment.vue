@@ -203,7 +203,7 @@ export default {
      * 提交评论
      */
     commitComment(comment) {
-      if (!isExitCookie) {
+      if (!isExitCookie("token")) {
         this.$message.error("请登录后再评论");
         return;
       }
@@ -231,12 +231,10 @@ export default {
         content: this.inputComment
       }).then(res => {
         if (res && res.data.code === 200) {
-          //刷新总评论数
-          this.$emit("updateStateFunc");
           this.inputComment = "";
           this.commentData.comments.forEach(item => {
             if (item.id === comment.id) {
-              //找到回复的id
+              //找到回复的评论id
               if (!item.reply.page) {
                 //没有展开
                 item.reply.replies.unshift(res.data.data);
@@ -253,7 +251,7 @@ export default {
      * 提交回复
      */
     commitReply(comment, reply) {
-      if (!isExitCookie) {
+      if (!isExitCookie("token")) {
         this.$message.error("请登录后再评论");
         return;
       }
@@ -281,12 +279,10 @@ export default {
         content: this.inputComment
       }).then(res => {
         if (res && res.data.code === 200) {
-          //刷新总评论数
-          this.$emit("updateStateFunc");
           this.inputComment = "";
           this.commentData.comments.forEach(item => {
             if (item.id === comment.id) {
-              //找到回复的id
+              //找到回复的评论id
               if (!item.reply.page) {
                 //没有展开
                 item.reply.replies.unshift(res.data.data);
