@@ -28,9 +28,6 @@ const routes = [
   {
     path: '/question/:id',
     name: 'Question',
-    meta: {
-      title: '问题详情 - Coder论坛'
-    },
     component: () => import('../views/Question.vue')
   },
   {

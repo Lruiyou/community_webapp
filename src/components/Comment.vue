@@ -17,7 +17,7 @@
         </span>
         <span class="comment-reply" v-if="item.replyCount > 0" @click="handleShowReply(item)">
           <i class="iconfont icon-like"></i>
-          <span style="margin-left: 12px;">展开回复</span>
+          <span style="margin-left: 12px;">展开{{item.replyCount}}条回复</span>
         </span>
       </div>
 
@@ -37,7 +37,7 @@
             </span>
           </div>
           <transition name="fade">
-            <div class="input-wrapper" v-if="showItemId === reply.id">
+            <div class="input-wrapper" v-if="showReplyId === reply.id">
               <el-input
                 class="gray-bg-input"
                 v-model="inputComment"
@@ -47,7 +47,7 @@
                 :placeholder="placeholder"
               ></el-input>
               <div class="btn-control">
-                <span class="cancel" @click="cancel">取消</span>
+                <span class="cancel" @click="cancelReply">取消</span>
                 <el-button class="btn" type="success" round @click="commitReply(item,reply)">确定</el-button>
               </div>
             </div>
@@ -62,7 +62,7 @@
           <span class="add-comment">添加新评论</span>
         </div>
         <transition name="fade">
-          <div class="input-wrapper" v-if="showItemId === item.id">
+          <div class="input-wrapper" v-if="showCommentId === item.id">
             <el-input
               class="gray-bg-input"
               v-model="inputComment"
@@ -72,7 +72,7 @@
               :placeholder="placeholder"
             ></el-input>
             <div class="btn-control">
-              <span class="cancel" @click="cancel">取消</span>
+              <span class="cancel" @click="cancelComment">取消</span>
               <el-button class="btn" type="success" round @click="commitComment(item)">确定</el-button>
             </div>
           </div>
@@ -121,7 +121,8 @@ export default {
       showReply: true,
       pagesize: 5,
       inputComment: "",
-      showItemId: ""
+      showReplyId: "",
+      showCommentId: ""
     };
   },
 
@@ -190,12 +191,19 @@ export default {
         item
       );
     },
+    /**
+     * 取消评论按钮
+     */
+    cancelComment() {
+      this.showCommentId = "";
+      this.inputComment = "";
+    },
 
     /**
-     * 点击取消按钮
+     * 取消回复按钮
      */
-    cancel() {
-      this.showItemId = "";
+    cancelReply() {
+      this.showReplyId = "";
       this.inputComment = "";
     },
 
@@ -273,9 +281,9 @@ export default {
         fromUid: user.id,
         fromName: user.name,
         fromAvatar: user.avatarUrl,
-        toUid: comment.fromUid,
-        toName: comment.fromName,
-        toAvatar: comment.fromAvatar,
+        toUid: reply.fromUid,
+        toName: reply.fromName,
+        toAvatar: reply.fromAvatar,
         content: this.inputComment
       }).then(res => {
         if (res && res.data.code === 200) {
@@ -288,7 +296,7 @@ export default {
                 item.reply.replies.unshift(res.data.data);
               } else {
                 //已经展开了，直接调接口刷新
-                this.showItemId = "";
+                this.showReplyId = "";
                 this.getReplyList({ comment_id: comment.id }, comment);
               }
             }
@@ -303,13 +311,14 @@ export default {
      * reply: 当前回复的评论
      */
     showCommentInput(item, reply) {
-      this.inputComment = "";
       if (reply) {
+        console.log("reply");
         this.placeholder = "@" + reply.fromName + " ";
-        this.showItemId = reply.id;
+        this.showReplyId = reply.id;
       } else {
+        console.log("回复");
         this.placeholder = "回复 " + item.fromName;
-        this.showItemId = item.id;
+        this.showCommentId = item.id;
       }
     }
   },

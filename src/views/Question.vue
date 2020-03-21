@@ -220,12 +220,17 @@ export default {
             ...otherData
           };
 
+          //动态设置页面标题
+          document.title = `${this.questionInfo.title} - Coder论坛`;
+
           if (isExitCookie("token")) {
             this.getThumbupStatus({
               question_id: id,
               user_id: this.login_user.id
             });
           }
+        } else {
+          document.title = "问题详情 - Coder论坛";
         }
       });
     },
