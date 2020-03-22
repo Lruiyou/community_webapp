@@ -312,11 +312,9 @@ export default {
      */
     showCommentInput(item, reply) {
       if (reply) {
-        console.log("reply");
         this.placeholder = "@" + reply.fromName + " ";
         this.showReplyId = reply.id;
       } else {
-        console.log("回复");
         this.placeholder = "回复 " + item.fromName;
         this.showCommentId = item.id;
       }

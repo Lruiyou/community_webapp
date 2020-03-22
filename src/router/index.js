@@ -15,6 +15,11 @@ const routes = [
     component: Home
   },
   {
+    path: '/news',
+    name: 'News',
+    component: () => import('../views/News.vue')
+  },
+  {
     path: '/publish',
     name: 'Publish',
     meta: {
@@ -37,7 +42,7 @@ const routes = [
       title: '搜索 - Coder论坛'
     },
     component: () => import('../views/Search.vue')
-  }
+  },
 ]
 
 
@@ -52,7 +57,7 @@ router.beforeEach((to, from, next) => {
   }
 
 
-  if (to.path === '/' || to.name === 'Question' || to.name === 'Search') {
+  if (to.name === 'Home' || to.name === 'Question' || to.name === 'Search') {
     next()
   } else {
     if (isExitCookie('token')) {

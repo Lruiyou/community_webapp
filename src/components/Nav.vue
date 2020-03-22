@@ -25,10 +25,12 @@
               </div>
             </a-menu-item>
             <a-menu-item key="notification" v-if="userInfo !== null">
-              <a-icon type="notification" />
-              <a-badge dot>
-                <span>通知</span>
-              </a-badge>
+              <div @click="toNews">
+                <a-icon type="bell" />
+                <a-badge :dot="newsCount > 0 ? true : false">
+                  <span>消息</span>
+                </a-badge>
+              </div>
             </a-menu-item>
             <a-sub-menu key="sub1">
               <span slot="title" v-if="userInfo === null">
@@ -82,6 +84,7 @@ import { isExitCookie, removeCookie, getCookie } from "../utils/cookieUtils";
 import { OAuth_URL } from "../global/githubConfig";
 import randomCode from "../utils/randomCode";
 import { getUser } from "../api/user";
+import { getNotificationCounts } from "../api/notification";
 export default {
   props: {
     path: {
@@ -91,7 +94,8 @@ export default {
   data() {
     return {
       userInfo: null,
-      inputValue: null
+      inputValue: null,
+      newsCount: 0 //消息数
     };
   },
   methods: {
@@ -135,6 +139,10 @@ export default {
     },
     onChange(e) {
       sessionStorage.setItem("keyword", e.target.value);
+    },
+    toNews() {
+      const user = this.$store.state.userInfo;
+      this.$router.push({ path: "/news", query: { uid: user.id } });
     }
   },
   created() {
@@ -147,12 +155,23 @@ export default {
     } else {
       const cookie = getCookie("token");
       getUser({ token: cookie }).then(res => {
-        if (res.data.code === 200) {
+        if (res && res.data.code === 200) {
           this.userInfo = res.data.data;
           sessionStorage.setItem("user", JSON.stringify(res.data.data)); //保存用户id
           this.$store.commit({
             type: "updateUser",
             userInfo: res.data.data
+          });
+
+          /**
+           * 获取消息数
+           */
+          getNotificationCounts({
+            uid: res.data.data.id
+          }).then(res => {
+            if (res && res.data.code === 200) {
+              this.newsCount = res.data.data;
+            }
           });
         }
       });
