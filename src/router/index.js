@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
+import notFind from '../views/404.vue'
 import { isExitCookie } from '../utils/cookieUtils';
 
 Vue.use(VueRouter)
@@ -43,6 +44,14 @@ const routes = [
     },
     component: () => import('../views/Search.vue')
   },
+  {
+    path: '*',
+    name: 'NotFind',
+    meta: {
+      title: '404 - Coder论坛'
+    },
+    component: notFind
+  }
 ]
 
 
