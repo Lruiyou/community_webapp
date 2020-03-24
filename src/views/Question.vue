@@ -32,6 +32,14 @@
                 <a-icon type="eye" style="margin-right:6px" />
                 {{questionInfo.viewCount}}
               </span>
+              <span
+                class="space"
+                style="cursor:pointer"
+                @click="handleEdit"
+                v-if="login_user != null && questionInfo.creatorId == login_user.id"
+              >
+                <a-icon type="edit" style="margin-right:6px" />编辑
+              </span>
             </div>
           </div>
           <div>
@@ -171,6 +179,22 @@ export default {
     }
   },
   methods: {
+    /**
+     * 点击编辑按钮,编辑问题
+     */
+    handleEdit() {
+      //拿到问题的id
+      const {
+        params: { id }
+      } = this.$route;
+      this.$router.push({
+        name: "Publish",
+        query: { question_id: id, type: "edit" }
+      });
+    },
+    /**
+     * 获取回复列表
+     */
     getReplyList(payload, comment) {
       getReplyList(payload).then(res => {
         if (res && res.data.code === 200) {
@@ -221,7 +245,7 @@ export default {
           };
 
           //动态设置页面标题
-          document.title = `${this.questionInfo.title} - Coder论坛`;
+          document.title = `${this.questionInfo.title} | Coder论坛`;
 
           if (isExitCookie("token")) {
             this.getThumbupStatus({
@@ -230,7 +254,7 @@ export default {
             });
           }
         } else {
-          document.title = "问题详情 - Coder论坛";
+          document.title = "问题详情 | Coder论坛";
         }
       });
     },

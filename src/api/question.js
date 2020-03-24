@@ -16,6 +16,14 @@ export function publishQuestion(params) {//发布问题
     })
 }
 
+export function editQuestion(params) { //编辑问题
+    return request({
+        url: '/question/edit',
+        method: 'put',
+        params,
+    })
+}
+
 export function getQuestionList(params) {//首页获取问题列表
     return request({
         url: '/question',

@@ -78,8 +78,13 @@ import { quillEditor } from "vue-quill-editor";
 import Nav from "@/components/Nav.vue";
 import { toolbarOptions } from "../global/toolbarConfig";
 import { tags } from "../global/tags";
-import { publishQuestion } from "../api/question";
+import {
+  publishQuestion,
+  getQuestionDetails,
+  editQuestion
+} from "../api/question";
 import findImgSrc from "../utils/findImgSrc";
+import { isExitCookie } from "../utils/cookieUtils";
 
 export default {
   components: {
@@ -118,6 +123,9 @@ export default {
     };
   },
   methods: {
+    /**
+     * 图片还未上传成功的操作
+     */
     beforeUpload(file) {
       const isJPG = file.type === "image/jpeg";
       const isPNG = file.type === "image/png";
@@ -137,6 +145,9 @@ export default {
         return false;
       }
     },
+    /**
+     * 图片上传成功后的操作
+     */
     uploadSuccess(res) {
       // res为图片服务器返回的数据
       // 获取富文本组件实例
@@ -201,23 +212,62 @@ export default {
         return;
       }
 
+      if (!isExitCookie("token")) {
+        this.$router.push("/");
+        this.$message.error("请先登录");
+        return;
+      }
+
       const user = this.$store.state.userInfo;
 
       if (user != null) {
+        let type = this.$route.query.type;
         this.published = true;
-        const params = {
-          creator: user.id,
-          creator_name: user.name,
-          avatar: user.avatarUrl,
-          github_url: user.githubUrl,
-          title: this.title,
-          content: this.content,
-          html_content: this.html_content,
-          tag: JSON.stringify(this.tag),
-          file_url: JSON.stringify(this.fileUrls)
-        };
-        publishQuestion(params).then(res => {
-          if (res && res.data.code === 200) {
+        if (type === "create") {
+          const params = {
+            creator: user.id,
+            creator_name: user.name,
+            avatar: user.avatarUrl,
+            github_url: user.githubUrl,
+            title: this.title,
+            content: this.content,
+            html_content: this.html_content,
+            tag: JSON.stringify(this.tag),
+            file_url: JSON.stringify(this.fileUrls)
+          };
+
+          publishQuestion(params).then(res => {
+            if (res && res.data.code === 200) {
+              this.published = false;
+              this.$message({
+                showClose: true,
+                message: "发布成功",
+                type: "success"
+              });
+              this.$router.push("/");
+            } else {
+              this.published = false;
+              this.$message({
+                showClose: true,
+                message: "出错啦",
+                type: "error"
+              });
+            }
+          });
+        } else {
+          const {
+            query: { question_id }
+          } = this.$route;
+          const params = {
+            id: question_id,
+            title: this.title,
+            content: this.content,
+            html_content: this.html_content,
+            tag: JSON.stringify(this.tag),
+            file_url: JSON.stringify(this.fileUrls)
+          };
+
+          editQuestion(params).then(res => {
             this.published = false;
             this.$message({
               showClose: true,
@@ -225,16 +275,8 @@ export default {
               type: "success"
             });
             this.$router.push("/");
-          } else {
-            this.published = false;
-            this.$message({
-              showClose: true,
-              message: "出错啦",
-              type: "error"
-            });
-            return;
-          }
-        });
+          });
+        }
       } else {
         this.$message({
           showClose: true,
@@ -247,6 +289,34 @@ export default {
       this.$router.push("/");
     },
     cancel() {}
+  },
+  created() {
+    const {
+      query: { question_id, type }
+    } = this.$route;
+    if (type === "edit") {
+      //编辑问题
+      getQuestionDetails({
+        question_id,
+        type
+      }).then(res => {
+        if (res && res.data.code === 200) {
+          let {
+            title,
+            content,
+            htmlContent,
+            tag,
+            fileUrl,
+            ...otherData
+          } = res.data.data;
+          this.title = title;
+          this.content = content;
+          this.html_content = htmlContent;
+          this.tag = JSON.parse(tag);
+          this.fileUrls = JSON.parse(fileUrl);
+        }
+      });
+    }
   }
 };
 </script>
