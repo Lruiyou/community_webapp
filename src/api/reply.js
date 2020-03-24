@@ -1,5 +1,13 @@
 import request from '@/service/request'
 
+export function getReplyById(params) {
+    return request({
+        url: '/reply/selectOne',
+        method: 'get',
+        params
+    })
+}
+
 export function createReply(params) {
     return request({
         url: 'reply',

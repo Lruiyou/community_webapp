@@ -1,5 +1,13 @@
 import request from '@/service/request'
 
+export function getCommentById(params) {
+    return request({
+        url: '/comment/selectOne',
+        method: 'get',
+        params
+    })
+}
+
 export function getCommentList(params) {
     return request({
         url: '/comment',

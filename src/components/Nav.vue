@@ -84,7 +84,10 @@ import { isExitCookie, removeCookie, getCookie } from "../utils/cookieUtils";
 import { OAuth_URL } from "../global/githubConfig";
 import randomCode from "../utils/randomCode";
 import { getUser } from "../api/user";
-import { getNotificationCounts } from "../api/notification";
+import {
+  getNotificationCounts,
+  updateNotificationStatus
+} from "../api/notification";
 export default {
   props: {
     path: {
@@ -113,7 +116,7 @@ export default {
       });
 
       const url = window.location.href;
-      if (url.indexOf("publish") != -1) {
+      if (url.indexOf("publish") != -1 || url.indexOf("news") != 1) {
         this.$router.push("/");
       }
       if (url.indexOf("question") != -1) {
@@ -142,7 +145,18 @@ export default {
     },
     toNews() {
       const user = this.$store.state.userInfo;
-      this.$router.push({ path: "/news", query: { uid: user.id } });
+
+      updateNotificationStatus({
+        //将消息状态修改为已读
+        uid: user.id
+      }).then(res => {
+        if (res && res.data.code === 200) {
+          this.newsCount = 0;
+          this.$router.push({ path: "/news", query: { uid: user.id } });
+        } else {
+          this.$router.push({ path: "/news", query: { uid: user.id } });
+        }
+      });
     }
   },
   created() {
@@ -153,28 +167,47 @@ export default {
     if (!isExitCookie("token")) {
       this.userInfo = null;
     } else {
-      const cookie = getCookie("token");
-      getUser({ token: cookie }).then(res => {
-        if (res && res.data.code === 200) {
-          this.userInfo = res.data.data;
-          sessionStorage.setItem("user", JSON.stringify(res.data.data)); //保存用户id
-          this.$store.commit({
-            type: "updateUser",
-            userInfo: res.data.data
-          });
+      let user = JSON.parse(sessionStorage.getItem("user"));
+      if (user) {
+        this.userInfo = user;
+        this.$store.commit({
+          type: "updateUser",
+          userInfo: user
+        });
+        /**
+         * 获取消息数
+         */
+        getNotificationCounts({
+          uid: user.id
+        }).then(res => {
+          if (res && res.data.code === 200) {
+            this.newsCount = res.data.data;
+          }
+        });
+      } else {
+        const cookie = getCookie("token");
+        getUser({ token: cookie }).then(res => {
+          if (res && res.data.code === 200) {
+            this.userInfo = res.data.data;
+            sessionStorage.setItem("user", JSON.stringify(res.data.data)); //保存用户id
+            this.$store.commit({
+              type: "updateUser",
+              userInfo: res.data.data
+            });
 
-          /**
-           * 获取消息数
-           */
-          getNotificationCounts({
-            uid: res.data.data.id
-          }).then(res => {
-            if (res && res.data.code === 200) {
-              this.newsCount = res.data.data;
-            }
-          });
-        }
-      });
+            /**
+             * 获取消息数
+             */
+            getNotificationCounts({
+              uid: res.data.data.id
+            }).then(res => {
+              if (res && res.data.code === 200) {
+                this.newsCount = res.data.data;
+              }
+            });
+          }
+        });
+      }
     }
   }
 };

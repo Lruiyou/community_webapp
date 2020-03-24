@@ -11,20 +11,23 @@ const routes = [
     path: '/',
     name: 'Home',
     meta: {
-      title: '首页 - Coder论坛'
+      title: '首页 | Coder论坛'
     },
     component: Home
   },
   {
     path: '/news',
     name: 'News',
+    meta: {
+      title: '消息中心 | Coder论坛'
+    },
     component: () => import('../views/News.vue')
   },
   {
     path: '/publish',
     name: 'Publish',
     meta: {
-      title: '发布问题 - Coder论坛'
+      title: '发布问题 | Coder论坛'
     },
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
@@ -40,7 +43,7 @@ const routes = [
     path: '/search',
     name: 'Search',
     meta: {
-      title: '搜索 - Coder论坛'
+      title: '搜索 | Coder论坛'
     },
     component: () => import('../views/Search.vue')
   },
@@ -48,7 +51,7 @@ const routes = [
     path: '*',
     name: 'NotFind',
     meta: {
-      title: '404 - Coder论坛'
+      title: '404 | Coder论坛'
     },
     component: notFind
   }

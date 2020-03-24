@@ -8,10 +8,18 @@ export function getNotificationCounts(params) {
     })
 }
 
-export function getUnreadNotificationList(params) {
+export function getNotificationList(params) {
     return request({
         url: '/notification/unread/list',
         method: 'get',
+        params
+    })
+}
+
+export function updateNotificationStatus(params) {
+    return request({
+        url: '/notification/status',
+        method: 'put',
         params
     })
 }
