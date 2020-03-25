@@ -60,7 +60,7 @@
                 </div>
               </a-menu-item>
               <a-menu-item key="my-question" v-if="userInfo !== null">
-                <div>
+                <div @click="toMyAsk">
                   <a-icon type="profile" />
                   <span style="margin-left:8px">我的提问</span>
                 </div>
@@ -102,10 +102,16 @@ export default {
     };
   },
   methods: {
+    /**
+     * 登录时授权
+     */
     handleOAuth() {
       const state = randomCode(16);
       window.location.href = OAuth_URL + `&state=${state}+${this.path}`;
     },
+    /**
+     * 退出登录时的操作
+     */
     handleLogout() {
       removeCookie("token");
       sessionStorage.removeItem("user");
@@ -116,7 +122,11 @@ export default {
       });
 
       const url = window.location.href;
-      if (url.indexOf("publish") != -1 || url.indexOf("news") != 1) {
+      if (
+        url.indexOf("publish") != -1 ||
+        url.indexOf("news") != 1 ||
+        url.indexOf("profile")
+      ) {
         this.$router.push("/");
       }
       if (url.indexOf("question") != -1) {
@@ -143,6 +153,9 @@ export default {
     onChange(e) {
       sessionStorage.setItem("keyword", e.target.value);
     },
+    /**
+     * 路由到消息页面
+     */
     toNews() {
       const user = this.$store.state.userInfo;
 
@@ -157,6 +170,13 @@ export default {
           this.$router.push({ path: "/news", query: { uid: user.accountId } });
         }
       });
+    },
+    /**
+     * 路由到我的提问页面
+     */
+    toMyAsk() {
+      const user = this.$store.state.userInfo;
+      this.$router.push({ name: "Profile", query: { uid: user.accountId } });
     }
   },
   created() {

@@ -35,6 +35,14 @@ const routes = [
     component: () => import('../views/Publish.vue')
   },
   {
+    path: '/profile',
+    name: 'Profile',
+    meta: {
+      title: '我的提问 | Coder论坛'
+    },
+    component: () => import('../views/Profile.vue')
+  },
+  {
     path: '/question/:id',
     name: 'Question',
     component: () => import('../views/Question.vue')

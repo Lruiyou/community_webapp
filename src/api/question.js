@@ -32,6 +32,14 @@ export function getQuestionList(params) {//首页获取问题列表
     })
 }
 
+export function getUserQuestions(params) {//获取某个用户的提问
+    return request({
+        url: '/question/profile',
+        method: 'get',
+        params
+    })
+}
+
 
 export function getHotTopic() { //获取热门话题
     return request({

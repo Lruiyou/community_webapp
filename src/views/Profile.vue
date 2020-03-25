@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Nav @navevent="getKeyword" />
+    <Nav />
     <a-row type="flex" justify="center">
       <a-col class="main" :xs="24" :sm="24" :md="18" :lg="16" :xl="14">
         <a-list
@@ -47,18 +47,18 @@
 
 <script>
 import Nav from "@/components/Nav.vue";
-import { getQuestionList } from "../api/question";
+import { getUserQuestions } from "@/api/question";
 export default {
-  name: "Search",
-  components: {
-    Nav
-  },
   data() {
     return {
       questionList: [],
       pagination: {
         onChange: page => {
-          this.getQuestions({
+          const {
+            query: { uid }
+          } = this.$route;
+          this.getUserQuestions({
+            uid,
             currentPage: page,
             pageSize: 5
           });
@@ -67,31 +67,27 @@ export default {
     };
   },
   methods: {
-    getQuestions(payload) {
-      getQuestionList(payload).then(res => {
+    getUserQuestions(payload) {
+      getUserQuestions(payload).then(res => {
         if (res && res.data.code === 200) {
           const { questions, page } = res.data.data;
           this.pagination = { ...this.pagination, ...page };
           this.questionList = questions;
+        } else if (res && res.data.code === 405) {
+          this.$router.push("/");
+          this.$message.error(res.data.msg);
         }
-      });
-    },
-    getKeyword(value) {
-      this.getQuestions({
-        currentPage: 1,
-        pageSize: 5,
-        search: value
       });
     }
   },
   created() {
-    if (this.$route.query && this.$route.query.keyword) {
-      this.getQuestions({
-        currentPage: 1,
-        pageSize: 5,
-        search: this.$route.query.keyword
-      });
-    }
+    const {
+      query: { uid }
+    } = this.$route;
+    this.getUserQuestions({ uid });
+  },
+  components: {
+    Nav
   }
 };
 </script>
