@@ -39,7 +39,6 @@ Vue.filter('timeFormat', timeFormat)
 
 router.beforeEach((to, from, next) => {
   const cookie = getCookie('token');
-  console.log(from, 'from')
   if (to.name === 'Home' || to.name === 'Question' || to.name === 'Search') {
     next()
   } else {

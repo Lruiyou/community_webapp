@@ -151,7 +151,6 @@ export default {
     uploadSuccess(res) {
       // res为图片服务器返回的数据
       // 获取富文本组件实例
-      console.log("上传成功");
       let quill = this.$refs.myQuillEditor.quill;
       //如果上传成功;
       if (res.code === 200 && res.data !== null) {
