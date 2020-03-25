@@ -225,7 +225,7 @@ export default {
         this.published = true;
         if (type === "create") {
           const params = {
-            creator: user.id,
+            creator: user.accountId,
             creator_name: user.name,
             avatar: user.avatarUrl,
             github_url: user.githubUrl,

@@ -152,7 +152,7 @@ export default {
         topicId: item.outerId,
         commentId: item.commentId,
         replyId: item.replyId,
-        fromUid: user.id,
+        fromUid: user.accountId,
         fromName: user.name,
         fromAvatar: user.avatarUrl,
         toUid: item.notifierId,

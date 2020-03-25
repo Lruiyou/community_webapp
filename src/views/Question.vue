@@ -36,7 +36,7 @@
                 class="space"
                 style="cursor:pointer"
                 @click="handleEdit"
-                v-if="login_user != null && questionInfo.creatorId == login_user.id"
+                v-if="login_user != null && questionInfo.creatorId == login_user.accountId"
               >
                 <a-icon type="edit" style="margin-right:6px" />编辑
               </span>
@@ -250,7 +250,7 @@ export default {
           if (isExitCookie("token")) {
             this.getThumbupStatus({
               question_id: id,
-              user_id: this.login_user.id
+              user_id: this.login_user.accountId
             });
           }
         } else {
@@ -289,7 +289,7 @@ export default {
         if (res && res.data.code === 200) {
           this.getThumbupStatus({
             question_id: id,
-            user_id: user.id
+            user_id: user.accountId
           });
           this.getQuestionDetails({
             question_id: id,
@@ -310,7 +310,7 @@ export default {
       const user = this.$store.state.userInfo;
       this.thumbUp({
         question_id: id,
-        user_id: user.id
+        user_id: user.accountId
       });
     },
     clearUser() {
@@ -346,7 +346,7 @@ export default {
 
           createComment({
             topicId: id,
-            fromUid: user.id,
+            fromUid: user.accountId,
             content: this.commentContent,
             fromName: user.name,
             fromAvatar: user.avatarUrl

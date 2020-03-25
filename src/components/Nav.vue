@@ -148,13 +148,13 @@ export default {
 
       updateNotificationStatus({
         //将消息状态修改为已读
-        uid: user.id
+        uid: user.accountId
       }).then(res => {
         if (res && res.data.code === 200) {
           this.newsCount = 0;
-          this.$router.push({ path: "/news", query: { uid: user.id } });
+          this.$router.push({ path: "/news", query: { uid: user.accountId } });
         } else {
-          this.$router.push({ path: "/news", query: { uid: user.id } });
+          this.$router.push({ path: "/news", query: { uid: user.accountId } });
         }
       });
     }
@@ -178,7 +178,7 @@ export default {
          * 获取消息数
          */
         getNotificationCounts({
-          uid: user.id
+          uid: user.accountId
         }).then(res => {
           if (res && res.data.code === 200) {
             this.newsCount = res.data.data;
