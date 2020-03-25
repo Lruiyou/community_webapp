@@ -307,7 +307,7 @@ export default {
       const {
         params: { id }
       } = this.$route;
-      const user = this.$store.state.userInfo;
+      const user = JSON.parse(sessionStorage.getItem("user"));
       this.thumbUp({
         question_id: id,
         user_id: user.accountId
@@ -385,7 +385,7 @@ export default {
     const {
       params: { id }
     } = this.$route;
-    let user = this.$store.state.userInfo;
+    let user = JSON.parse(sessionStorage.getItem("user"));
     if (user) {
       this.login_user = user;
     } else {
@@ -393,6 +393,7 @@ export default {
       if (cookie) {
         getUser({ token: cookie }).then(res => {
           if (res.data.code === 200) {
+            sessionStorage.setItem("user", JSON.stringify(res.data.data));
             this.login_user = res.data.data;
             this.$store.commit({
               type: "updateUser",

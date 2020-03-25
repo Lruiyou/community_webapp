@@ -209,7 +209,7 @@ export default {
         getUser({ token: cookie }).then(res => {
           if (res && res.data.code === 200) {
             this.userInfo = res.data.data;
-            sessionStorage.setItem("user", JSON.stringify(res.data.data)); //保存用户id
+            sessionStorage.setItem("user", JSON.stringify(res.data.data)); //保存用户
             this.$store.commit({
               type: "updateUser",
               userInfo: res.data.data
