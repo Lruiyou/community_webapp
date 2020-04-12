@@ -103,7 +103,9 @@
           <User :userData="user" />
         </div>
         <div style="margin-top:20px">
-          <Relation :relation="relativeList" />
+          <a-affix :offsetTop="5">
+            <Relation :relation="relativeList" />
+          </a-affix>
         </div>
       </a-col>
     </a-row>
@@ -317,8 +319,10 @@ export default {
       //退出后清除用户信息
       this.login_user = null;
     },
+    /**
+     * 获取相关问题列表
+     */
     getRelated(payload) {
-      //获取相关问题列表
       getRelativeQuestions(payload).then(res => {
         if (res && res.data.code === 200) {
           this.relativeList = res.data.data;

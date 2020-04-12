@@ -10,7 +10,7 @@
           :dataSource="questionList"
           :pagination="pagination"
         >
-          <a-list-item slot="renderItem" slot-scope="item" key="item.id" style="margin-left:8px">
+          <a-list-item slot="renderItem" slot-scope="item" key="item.id" style="margin-left:8px;">
             <template slot="actions">
               <span key="like-o">
                 <a-icon type="like-o" style="margin-right: 8px" />
@@ -43,27 +43,29 @@
         </a-list>
       </a-col>
       <a-col :xs="0" :sm="0" :md="5" :lg="5" :xl="5">
-        <div class="divBox">
-          <h3 class="hotTitle">
-            <span>热门话题</span>
-          </h3>
-          <div v-if="hotTopics.length === 0" class="no-data">
-            <span>暂无数据</span>
-          </div>
-          <div class="hotBox" v-for="item in hotTopics" :key="item.id">
-            <div class="hotText">
-              <router-link
-                class="hotLink"
-                style="color:rgb(64, 64, 64)"
-                :to="'/question/'+item.id"
-              >{{item.title}}</router-link>
+        <a-affix :offsetTop="5">
+          <div class="divBox">
+            <h3 class="hotTitle">
+              <span>热门话题</span>
+            </h3>
+            <div v-if="hotTopics.length === 0" class="no-data">
+              <span>暂无数据</span>
             </div>
-            <div class="hot">
-              <a-icon type="fire" style="margin-right:5px" />
-              <span style="margin-right:3px">{{item.heat}}</span>热度
+            <div class="hotBox" v-for="item in hotTopics" :key="item.id">
+              <div class="hotText">
+                <router-link
+                  class="hotLink"
+                  style="color:rgb(64, 64, 64)"
+                  :to="'/question/'+item.id"
+                >{{item.title}}</router-link>
+              </div>
+              <div class="hot">
+                <a-icon type="fire" style="margin-right:5px" />
+                <span style="margin-right:3px">{{item.heat}}</span>热度
+              </div>
             </div>
           </div>
-        </div>
+        </a-affix>
       </a-col>
     </a-row>
   </div>
@@ -102,15 +104,6 @@ export default {
           const { questions, page } = res.data.data;
           this.pagination = { ...this.pagination, ...page };
           this.questionList = questions;
-
-          // questions.forEach(element => {
-          //   let { tag, fileUrl, ...otherData } = element;
-          //   this.questionList.push({
-          //     ...otherData,
-          //     tag: JSON.parse(tag),
-          //     fileUrl: JSON.parse(fileUrl)
-          //   });
-          // });
         }
       });
     },

@@ -7,7 +7,7 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import infiniteScroll from 'vue-infinite-scroll'
 import { timeFormat } from './utils/filter';
-import { Button, List, Icon, Menu, Row, Col, Input, Badge, Avatar, Card, TreeSelect, Divider, Tag, Comment, Form, Pagination, Spin, Popconfirm, Notification } from 'ant-design-vue'
+import { Button, List, Icon, Menu, Row, Col, Input, Badge, Avatar, Card, TreeSelect, Divider, Tag, Comment, Form, Pagination, Spin, Popconfirm, Notification, Affix } from 'ant-design-vue'
 import { getCookie } from "./utils/cookieUtils";
 
 Vue.use(infiniteScroll)
@@ -33,6 +33,7 @@ Vue.use(Pagination)
 Vue.use(Spin)
 Vue.use(Popconfirm)
 Vue.use(Notification)
+Vue.use(Affix)
 
 //时间过滤器
 Vue.filter('timeFormat', timeFormat)
