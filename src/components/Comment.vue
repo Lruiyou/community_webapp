@@ -15,6 +15,14 @@
           <i class="iconfont icon-comment"></i>
           <span>回复</span>
         </span>
+        <span
+          class="comment-reply"
+          v-if="user != null && user.accountId == item.fromUid "
+          @click="handleDeleteComment(item)"
+        >
+          <i class="iconfont icon-comment"></i>
+          <span style="margin-left: 12px;">删除</span>
+        </span>
         <span class="comment-reply" v-if="item.replyCount > 0" @click="handleShowReply(item)">
           <i class="iconfont icon-like"></i>
           <span style="margin-left: 12px;">展开{{item.replyCount}}条回复</span>
@@ -92,6 +100,7 @@
       <el-pagination
         small
         background
+        :hide-on-single-page="true"
         :page-size="pagesize"
         layout="prev, pager, next"
         :total="commentData.page.total"
@@ -105,6 +114,7 @@
 import Vue from "vue";
 import { isExitCookie } from "../utils/cookieUtils";
 import { getReplyList, createReply } from "../api/reply";
+import { deleteComment } from "../api/comment";
 export default {
   props: {
     commentData: {
@@ -122,7 +132,8 @@ export default {
       pagesize: 5,
       inputComment: "",
       showReplyId: "",
-      showCommentId: ""
+      showCommentId: "",
+      user: null
     };
   },
 
@@ -256,6 +267,28 @@ export default {
       });
     },
     /**
+     * 删除评论
+     */
+    handleDeleteComment(comment) {
+      const {
+        params: { id }
+      } = this.$route; //问题id
+
+      deleteComment({
+        question_id: id,
+        comment_id: comment.id
+      }).then(res => {
+        if (res && res.data.code === 200) {
+          let oldComments = this.commentData.comments;
+          let filterComments = oldComments.filter(
+            item => item.id != comment.id
+          );
+          this.commentData.comments = filterComments;
+          this.$message.success("删除成功");
+        }
+      });
+    },
+    /**
      * 提交回复
      */
     commitReply(comment, reply) {
@@ -320,7 +353,9 @@ export default {
       }
     }
   },
-  created() {}
+  created() {
+    this.user = this.$store.state.userInfo;
+  }
 };
 </script>
 

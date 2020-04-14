@@ -281,6 +281,7 @@ export default {
         }
       });
     },
+    
     thumbUp(payload) {
       //改变点赞状态
       const {
@@ -300,6 +301,9 @@ export default {
         }
       });
     },
+    /**
+     * 点赞
+     */
     handleThumbUp() {
       //点赞操作
       if (!isExitCookie("token")) {

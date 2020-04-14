@@ -24,3 +24,11 @@ export function createComment(params) {
     })
 }
 
+export function deleteComment(params) {
+    return request({
+        url: '/comment/delete',
+        method: 'put',
+        params
+    })
+}
+
