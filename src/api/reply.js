@@ -23,3 +23,11 @@ export function getReplyList(params) {
         params
     })
 }
+
+export function deleteReply(params) {
+    return request({
+        url: '/reply/delete',
+        method: 'put',
+        params
+    })
+}

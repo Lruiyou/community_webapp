@@ -43,6 +43,15 @@
               <i class="iconfont icon-comment"></i>
               <span>回复</span>
             </span>
+            <span
+              style="margin-left:12px"
+              class="reply-text"
+              @click="handleDeleteReply(item, reply)"
+              v-if="user != null && user.accountId == reply.fromUid"
+            >
+              <i class="iconfont icon-comment"></i>
+              <span>删除</span>
+            </span>
           </div>
           <transition name="fade">
             <div class="input-wrapper" v-if="showReplyId === reply.id">
@@ -86,7 +95,7 @@
           </div>
         </transition>
       </div>
-      <div class="pagination-div" v-if="item.reply.page != null">
+      <div class="pagination-div" v-if="item.reply.page != null ">
         <el-pagination
           small
           layout="prev, pager, next"
@@ -113,7 +122,7 @@
 <script>
 import Vue from "vue";
 import { isExitCookie } from "../utils/cookieUtils";
-import { getReplyList, createReply } from "../api/reply";
+import { getReplyList, createReply, deleteReply } from "../api/reply";
 import { deleteComment } from "../api/comment";
 export default {
   props: {
@@ -334,6 +343,29 @@ export default {
               }
             }
           });
+        }
+      });
+    },
+    /**
+     * 删除回复
+     */
+    handleDeleteReply(comment, reply) {
+      deleteReply({
+        question_id: reply.topicId,
+        comment_id: reply.commentId,
+        reply_id: reply.id
+      }).then(res => {
+        if (res && res.data.code === 200) {
+          this.commentData.comments.forEach(item => {
+            //找到回复所对应的评论
+            if (item.id === reply.commentId) {
+              let oldReplies = item.reply.replies;
+              let filterReplies = oldReplies.filter(e => e.id != reply.id);
+              filterReplies.length == 0 ? (item.reply.page = null) : "";
+              item.reply.replies = filterReplies;
+            }
+          });
+          this.$message.success("删除成功");
         }
       });
     },
