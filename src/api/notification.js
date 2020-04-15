@@ -23,3 +23,11 @@ export function updateNotificationStatus(params) {
         params
     })
 }
+
+export function deleteNotification(params) {
+    return request({
+        url: '/notification/delete',
+        method: 'put',
+        params
+    })
+}

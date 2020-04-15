@@ -23,10 +23,15 @@
                 </div>
               </div>
               <div class="content">{{item.content}}</div>
+              <!-- <div class="content"></div> -->
               <div class="control">
                 <span class="comment-reply" @click="showCommentInput(item)">
                   <i class="iconfont icon-comment"></i>
                   <span>回复</span>
+                </span>
+                <span class="comment-reply" @click="handleDelete(item)">
+                  <i class="iconfont icon-comment"></i>
+                  <span style="margin-left: 12px;">删除</span>
                 </span>
                 <span class="comment-reply" v-if="item.type == 2" @click="handleShowReply(item)">
                   <i class="iconfont icon-like"></i>
@@ -89,7 +94,7 @@
 
 <script>
 import Nav from "../components/Nav";
-import { getNotificationList } from "../api/notification";
+import { getNotificationList, deleteNotification } from "../api/notification";
 import { getReplyById, createReply } from "../api/reply";
 import { getCommentById } from "../api/comment";
 export default {
@@ -163,6 +168,30 @@ export default {
         this.inputComment = "";
         if (res && res.data.code === 200) {
           this.replySuccess();
+        } else if (res && res.data.code === 403) {
+          this.$message.error(res.data.msg);
+        }
+      });
+    },
+    /**
+     * 删除消息
+     */
+    handleDelete(notification) {
+      deleteNotification({
+        id: notification.id
+      }).then(res => {
+        if (res && res.data.code === 200) {
+          //删除成功
+          let oldNews = this.news;
+          this.news.forEach(e => {
+            //找到要删除的通知的id
+            if (e.id === notification.id) {
+              let filterNews = oldNews.filter(
+                item => item.id != notification.id
+              );
+              this.news = filterNews;
+            }
+          });
         }
       });
     },
@@ -177,11 +206,13 @@ export default {
         }).then(res => {
           if (res && res.data.code === 200) {
             let result = res.data.data;
-            this.news.forEach(item => {
-              if (item.parentId === result.id) {
-                item.parent = result;
-              }
-            });
+            result.isExit == 0
+              ? this.$message.error("该评论已被删除")
+              : this.news.forEach(item => {
+                  if (item.parentId === result.id) {
+                    item.parent = result;
+                  }
+                });
           } else if (res && res.data.code === 403) {
             //评论不存在
             this.$message.error(res.data.msg);
@@ -194,11 +225,13 @@ export default {
         }).then(res => {
           if (res && res.data.code === 200) {
             let result = res.data.data;
-            this.news.forEach(item => {
-              if (item.parentId === result.id) {
-                item.parent = result;
-              }
-            });
+            result.isExit == 0
+              ? this.$message.error("该评论已被删除")
+              : this.news.forEach(item => {
+                  if (item.parentId === result.id) {
+                    item.parent = result;
+                  }
+                });
           } else if (res && res.data.code === 403) {
             //评论不存在
             this.$message.error(res.data.msg);
