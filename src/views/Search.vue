@@ -60,7 +60,8 @@ export default {
         onChange: page => {
           this.getQuestions({
             currentPage: page,
-            pageSize: 5
+            pageSize: 5,
+            search: sessionStorage.getItem("keyword")
           });
         }
       }
